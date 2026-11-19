@@ -3,1122 +3,979 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f766e" />
-  <title>الصفقة السورية - سوق العقارات والسيارات والإعلانات</title>
+  <title>الصفقة السورية - سوق الإعلانات والتجارة</title>
   <link rel="manifest" href="./manifest.json" />
-  <link rel="stylesheet" href="./styles.css" />
+  <meta name="theme-color" content="#0f766e" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --primary: #0f766e;
-      --primary-dark: #0d5e58;
-      --gold: #d97706;
-      --gold-bg: #fffbeb;
-      --bg: #f0f2f5;
+      --bg: #f1f5f9;
       --card: #ffffff;
-      --text: #1c1e21;
-      --muted: #65676b;
-      --border: #dddfe2;
-      --whatsapp: #25D366;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --accent: #d97706;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --border: #e2e8f0;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding-bottom: 48px;
+      line-height: 1.55;
     }
+
     header {
-      background: linear-gradient(135deg, #0f766e, #115e59);
-      color: #fff;
-      padding: 10px 14px;
       position: sticky;
       top: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.16);
+      z-index: 40;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 12px 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
+
+    .header-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .brand {
       display: flex;
       align-items: center;
       gap: 10px;
+      font-weight: 800;
+      font-size: 1.15rem;
     }
-    .brand-logo {
-      width: 52px;
-      height: 52px;
-      flex-shrink: 0;
-      border-radius: 12px;
-      background: #0f172a;
-      padding: 2px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.22);
-      border: 1.5px solid rgba(255,255,255,0.45);
-    }
-    .brand-text h1 {
-      margin: 0;
-      font-size: 1.18rem;
-      line-height: 1.2;
-    }
-    .brand-text span {
-      font-size: 0.76rem;
-      opacity: 0.92;
-      display: block;
-    }
-    .admin-btn {
+
+    .badge-pill {
       background: rgba(255,255,255,0.18);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.45);
-      padding: 7px 11px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
     }
-    .container {
-      max-width: 700px;
-      margin: 14px auto;
-      padding: 0 12px;
-    }
-    .box {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .box h2 {
-      margin: 0 0 12px;
-      font-size: 1.05rem;
-      color: var(--primary);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    @media (max-width: 520px) {
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.92rem;
-      margin-bottom: 8px;
-      background: #fff;
-      color: var(--text);
-    }
-    textarea { resize: vertical; min-height: 75px; }
-    .gps-row {
+
+    .header-actions {
       display: flex;
       gap: 8px;
-      align-items: stretch;
-      margin-bottom: 8px;
+      flex-wrap: wrap;
     }
-    .gps-row input {
-      margin-bottom: 0;
-      flex: 1;
+
+    button, select, input, textarea {
+      font-family: inherit;
+      font-size: 0.95rem;
     }
-    .btn-gps {
-      background: #0284c7;
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-weight: 700;
+      transition: transform 0.12s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-light { background: #fff; color: var(--primary-dark); }
+    .btn-outline-light {
+      background: rgba(255,255,255,0.14);
       color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0 12px;
-      font-weight: 700;
-      font-size: 0.84rem;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-    .gps-status {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-    .info-note {
-      font-size: 0.78rem;
-      color: var(--muted);
-      background: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-    .btn {
-      width: 100%;
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.94rem;
-      cursor: pointer;
-      font-family: inherit;
+      border: 1px solid rgba(255,255,255,0.35);
     }
     .btn-primary { background: var(--primary); color: #fff; }
-    .btn-danger { background: #dc2626; color: #fff; padding: 6px 10px; font-size: 0.8rem; width: auto; border-radius: 6px; border: none; cursor: pointer; }
-    .btn-success { background: #16a34a; color: #fff; padding: 6px 10px; font-size: 0.8rem; width: auto; border-radius: 6px; border: none; cursor: pointer; }
-    .fee-notice {
-      background: #fef3c7;
-      color: #92400e;
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost { background: #f1f5f9; color: var(--text); }
+
+    .container {
+      max-width: 980px;
+      margin: 16px auto 60px;
+      padding: 0 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 10px;
-      font-weight: 600;
-      border: 1px solid #fcd34d;
+      background: #fff;
+      color: var(--text);
     }
-    .free-notice {
-      background: #dcfce7;
-      color: #166534;
-      padding: 9px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 10px;
-      font-weight: 700;
-      border: 1px solid #86efac;
+
+    textarea { min-height: 95px; resize: vertical; }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 10px;
     }
+
     .post-card {
       background: var(--card);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      border: 1px solid transparent;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
     }
+
     .post-card.featured {
-      background: var(--gold-bg);
-      border: 1.5px solid #f59e0b;
+      border: 2px solid var(--accent);
+      background: #fffbeb;
     }
-    .post-header {
+
+    .post-meta {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .badges-group {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .badge {
-      background: #e6f4f1;
-      color: var(--primary);
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-    .badge-featured {
-      background: #fef3c7;
-      color: var(--gold);
-      border: 1px solid #f59e0b;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 0.78rem;
-      font-weight: 800;
-    }
-    .badge-normal {
-      background: #f3f4f6;
-      color: #374151;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 0.76rem;
-      font-weight: 700;
-    }
-    .post-title { margin: 4px 0 6px; font-size: 1.08rem; }
-    .post-desc { font-size: 0.92rem; color: #333; margin-bottom: 10px; white-space: pre-line; }
-    .location-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       gap: 8px;
       flex-wrap: wrap;
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 7px 10px;
-      margin-bottom: 10px;
-      font-size: 0.83rem;
-      color: #0f172a;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
-    .map-link {
-      color: #0284c7;
+
+    .tag {
+      background: #e2e8f0;
+      color: #1e293b;
+      padding: 2px 9px;
+      border-radius: 999px;
       font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
     }
-    .post-img, .post-video {
-      width: 100%;
-      max-height: 360px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      background: #000;
-    }
-    .post-price {
-      font-size: 1.05rem;
+
+    .tag.featured-tag { background: #fef3c7; color: #92400e; }
+    .tag.pending-tag { background: #fee2e2; color: #991b1b; }
+    .tag.approved-tag { background: #dcfce7; color: #166534; }
+
+    .post-title {
+      margin: 4px 0 8px;
+      font-size: 1.15rem;
       font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 10px;
     }
+
+    .price-box {
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .media-box {
+      margin: 10px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+
+    .media-box img, .media-box video {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
+    }
+
     .post-actions {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       flex-wrap: wrap;
-      border-top: 1px solid var(--border);
+      margin-top: 12px;
       padding-top: 10px;
+      border-top: 1px solid var(--border);
     }
-    .action-btn {
-      flex: 1;
-      min-width: 110px;
-      background: #f3f4f6;
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.84rem;
-      cursor: pointer;
-      font-family: inherit;
-      text-align: center;
-      text-decoration: none;
-    }
-    .action-btn.wa {
-      background: var(--whatsapp);
-      color: #fff;
-      border-color: var(--whatsapp);
-    }
-    .share-bar {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      padding: 8px;
-      background: #f9fafb;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .share-chip {
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 5px 9px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      background: #fff;
-      color: #111827;
-      text-decoration: none;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .interaction-panel {
-      margin-top: 10px;
-      padding: 10px;
+
+    .sub-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
       background: #f8fafc;
       border: 1px solid var(--border);
-      border-radius: 8px;
     }
-    .comment-item {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
+
+    .list-item {
       padding: 7px 10px;
-      margin-bottom: 6px;
-      font-size: 0.86rem;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      margin-bottom: 7px;
+      font-size: 0.9rem;
     }
-    .comment-author {
-      font-weight: 700;
-      color: var(--primary);
-      font-size: 0.8rem;
-      display: block;
-      margin-bottom: 2px;
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 60;
+      overflow-y: auto;
     }
-    .chat-box {
-      max-height: 200px;
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-panel {
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
       overflow-y: auto;
       background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 8px;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
     }
-    .chat-msg {
-      padding: 6px 9px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      background: #eef2ff;
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
-    .chat-msg.seller {
-      background: #e6f4f1;
+
+    .form-row { margin-bottom: 12px; }
+    .form-row label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
     }
-    .hidden { display: none; }
-    .pending-item {
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      background: #fafafa;
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
     }
+
+    .shamcash-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      color: #14532d;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      z-index: 80;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    }
+
+    .toast.show { display: block; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <span>الصفقة السورية</span>
+        <span class="badge-pill">سوق سورية المباشر</span>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-light" onclick="openCreateModal()">+ أضف إعلانك</button>
+        <button type="button" class="btn-outline-light" onclick="refreshPosts(true)">🔄 تحديث</button>
+        <button type="button" class="btn-outline-light" onclick="openAdminGate()">🛡️ الإدارة</button>
+      </div>
+    </div>
+  </header>
 
-<header>
-  <div class="brand">
-    <svg class="brand-logo" viewBox="0 0 110 100" aria-label="شعار الصفقة السورية - كرة أرضية وحاوية تجارة وخريطة سوريا">
-      <defs>
-        <radialGradient id="globeSphereGrad" cx="35%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#7dd3fc" />
-          <stop offset="48%" stop-color="#0284c7" />
-          <stop offset="100%" stop-color="#0f172a" />
-        </radialGradient>
-        <linearGradient id="containerWall" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fbbf24" />
-          <stop offset="100%" stop-color="#d97706" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="110" height="100" rx="14" fill="#0f172a" />
-      <circle cx="67" cy="48" r="33" fill="url(#globeSphereGrad)" stroke="#bae6fd" stroke-width="1.8" />
-      <ellipse cx="67" cy="48" rx="17" ry="33" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1" />
-      <line x1="34" y1="48" x2="100" y2="48" stroke="rgba(255,255,255,0.35)" stroke-width="1" />
-      <line x1="40" y1="32" x2="94" y2="32" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" />
-      <line x1="40" y1="64" x2="94" y2="64" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" />
-      <path d="M53,43 L60,37 L69,36 L77,33 L86,35 L89,41 L83,46 L77,48 L75,54 L68,56 L61,51 L54,50 Z"
-            fill="#f59e0b" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" />
-      <polygon points="62,46 65,43 68,46 68,49 62,49" fill="#0f766e" />
-      <rect x="71" y="42" width="8" height="3.8" rx="1.2" fill="#111827" />
-      <circle cx="72.5" cy="46.5" r="1.1" fill="#ffffff" />
-      <circle cx="77.5" cy="46.5" r="1.1" fill="#ffffff" />
-      <polygon points="10,44 36,34 52,41 26,52" fill="#fde68a" stroke="#92400e" stroke-width="1.2" />
-      <polygon points="10,44 26,52 26,84 10,75" fill="url(#containerWall)" stroke="#92400e" stroke-width="1.2" />
-      <polygon points="26,52 52,41 52,73 26,84" fill="#f59e0b" stroke="#92400e" stroke-width="1.2" />
-      <rect x="30" y="53" width="8" height="8" rx="1" fill="#fef3c7" stroke="#92400e" stroke-width="0.9" />
-      <rect x="40" y="49" width="8" height="8" rx="1" fill="#fef3c7" stroke="#92400e" stroke-width="0.9" />
-      <rect x="30" y="64" width="8" height="8" rx="1" fill="#fde68a" stroke="#92400e" stroke-width="0.9" />
-      <rect x="40" y="60" width="8" height="8" rx="1" fill="#fde68a" stroke="#92400e" stroke-width="0.9" />
-    </svg>
-    <div class="brand-text">
-      <h1>الصفقة السورية</h1>
-      <span>عقارات • سيارات • تجارة وشحن</span>
+  <main class="container">
+    <section class="card">
+      <div class="filters-grid">
+        <input id="searchInput" type="search" placeholder="ابحث في العناوين والوصف..." oninput="renderFeed()" />
+        <select id="govFilter" onchange="renderFeed()">
+          <option value="">كل المحافظات</option>
+          <option value="دمشق">دمشق</option>
+          <option value="ريف دمشق">ريف دمشق</option>
+          <option value="حلب">حلب</option>
+          <option value="حمص">حمص</option>
+          <option value="حماة">حماة</option>
+          <option value="اللاذقية">اللاذقية</option>
+          <option value="طرطوس">طرطوس</option>
+          <option value="إدلب">إدلب</option>
+          <option value="دير الزور">دير الزور</option>
+          <option value="الحسكة">الحسكة</option>
+          <option value="الرقة">الرقة</option>
+          <option value="درعا">درعا</option>
+          <option value="السويداء">السويداء</option>
+          <option value="القنيطرة">القنيطرة</option>
+        </select>
+        <select id="catFilter" onchange="renderFeed()">
+          <option value="">كل الأقسام</option>
+          <option value="عقارات">عقارات</option>
+          <option value="سيارات">سيارات</option>
+          <option value="معارض">معارض</option>
+          <option value="إلكترونيات">إلكترونيات</option>
+          <option value="أثاث ومنازل">أثاث ومنازل</option>
+          <option value="خدمات وإعلانات تجارية">خدمات وإعلانات تجارية</option>
+        </select>
+      </div>
+      <div class="status-bar">
+        <span id="dbStatus">جاري التحقق من الاتصال بقاعدة البيانات...</span>
+        <span id="postsCount">0 إعلان معروض</span>
+      </div>
+    </section>
+
+    <section id="adminPanel" class="card hidden">
+      <div class="modal-head">
+        <div>
+          <h3 style="margin:0;">مركز إدارة الصفقة السورية</h3>
+          <small style="color:var(--muted);">مراجعة الإعلانات والتحكم بوضع النشر المجاني أو المدفوع (شام كاش: 4832844257842450)</small>
+        </div>
+        <button type="button" class="btn-ghost" onclick="logoutAdmin()">إغلاق الإدارة</button>
+      </div>
+
+      <div class="two-col" style="margin-bottom:14px;">
+        <div class="sub-box">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;">
+            <input id="freePostingToggle" type="checkbox" style="width:auto;" onchange="saveMonetizationSettings()" />
+            <span>تفعيل النشر المجاني المؤقت (بدون اشتراط تحويل مسبق)</span>
+          </label>
+        </div>
+        <div class="sub-box">
+          <div class="two-col">
+            <div>
+              <label style="font-size:0.82rem;font-weight:700;">سعر الإعلان العادي ($)</label>
+              <input id="normalPriceInput" type="number" min="0" step="0.5" value="2" onchange="saveMonetizationSettings()" />
+            </div>
+            <div>
+              <label style="font-size:0.82rem;font-weight:700;">سعر الإعلان المميز ($)</label>
+              <input id="featuredPriceInput" type="number" min="0" step="0.5" value="5" onchange="saveMonetizationSettings()" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h4>قائمة الانتظار (بانتظار الموافقة)</h4>
+          <div id="pendingList"></div>
+        </div>
+        <div>
+          <h4>الإعلانات المنشورة والمعتمدة</h4>
+          <div id="approvedAdminList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="feedContainer"></section>
+  </main>
+
+  <div id="createModal" class="modal-backdrop">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3 style="margin:0;">إضافة إعلان جديد</h3>
+        <button type="button" class="btn-ghost" onclick="closeCreateModal()">✕</button>
+      </div>
+
+      <div id="monetizationNotice" class="shamcash-box"></div>
+
+      <form id="postForm" onsubmit="submitPost(event)">
+        <div class="two-col">
+          <div class="form-row">
+            <label>نوع الإعلان</label>
+            <select id="postType" onchange="updateMonetizationBanner()">
+              <option value="normal">عادي</option>
+              <option value="featured">مميز (إطار ذهبي وأولوية)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>المحافظة</label>
+            <select id="postGov" required>
+              <option value="">اختر المحافظة</option>
+              <option value="دمشق">دمشق</option>
+              <option value="ريف دمشق">ريف دمشق</option>
+              <option value="حلب">حلب</option>
+              <option value="حمص">حمص</option>
+              <option value="حماة">حماة</option>
+              <option value="اللاذقية">اللاذقية</option>
+              <option value="طرطوس">طرطوس</option>
+              <option value="إدلب">إدلب</option>
+              <option value="دير الزور">دير الزور</option>
+              <option value="الحسكة">الحسكة</option>
+              <option value="الرقة">الرقة</option>
+              <option value="درعا">درعا</option>
+              <option value="السويداء">السويداء</option>
+              <option value="القنيطرة">القنيطرة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="form-row">
+            <label>القسم</label>
+            <select id="postCat" required>
+              <option value="">اختر القسم</option>
+              <option value="عقارات">عقارات</option>
+              <option value="سيارات">سيارات</option>
+              <option value="معارض">معارض</option>
+              <option value="إلكترونيات">إلكترونيات</option>
+              <option value="أثاث ومنازل">أثاث ومنازل</option>
+              <option value="خدمات وإعلانات تجارية">خدمات وإعلانات تجارية</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>السعر</label>
+            <input id="postPrice" type="text" placeholder="مثال: 45,000$ أو قابل للتفاوض" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>عنوان الإعلان</label>
+          <input id="postTitle" type="text" required placeholder="اكتب عنواناً واضحاً ومختصراً" />
+        </div>
+
+        <div class="form-row">
+          <label>تفاصيل الإعلان</label>
+          <textarea id="postDesc" required placeholder="اكتب المواصفات والموقع والحالة..."></textarea>
+        </div>
+
+        <div class="two-col">
+          <div class="form-row">
+            <label>العنوان التفصيلي / المنطقة</label>
+            <input id="postLocation" type="text" placeholder="مثال: المزة - أوتوستراد" />
+          </div>
+          <div class="form-row">
+            <label>رقم واتساب للتواصل</label>
+            <input id="postWhatsapp" type="text" placeholder="مثال: 9639xxxxxxxx" />
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="form-row">
+            <label>صورة الإعلان (من الجهاز)</label>
+            <input id="imageFile" type="file" accept="image/*" />
+          </div>
+          <div class="form-row">
+            <label>فيديو الإعلان (من الجهاز)</label>
+            <input id="videoFile" type="file" accept="video/*" />
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+          <button type="button" class="btn-ghost" onclick="closeCreateModal()">إلغاء</button>
+          <button id="submitBtn" type="submit" class="btn-primary">إرسال الإعلان للمراجعة</button>
+        </div>
+      </form>
     </div>
   </div>
-  <button type="button" class="admin-btn" onclick="toggleAdmin()">مركز التحكم ⚙️</button>
-</header>
 
-<div class="container">
+  <div id="toast" class="toast"></div>
 
-  <section id="adminPanel" class="box hidden">
-    <h2>مركز التحكم والإدارة</h2>
-    <div id="adminLoginBox">
-      <input type="password" id="adminPassInput" placeholder="أدخل رمز الإدارة (الافتراضي: 1993)" />
-      <button type="button" class="btn btn-primary" onclick="loginAdmin()">دخول الإدارة</button>
-    </div>
+  <script>
+    const SUPABASE_URL = "https://hcwkgtpnymxvqoqopltc.supabase.co";
+    const SUPABASE_ANON_KEY = "الصق_مفتاح_Publishable_key_هنا";
 
-    <div id="adminControls" class="hidden">
-      <div class="info-note">
-        ملاحظة: حالياً يعمل التخزين محلياً على كل جهاز (`localStorage`). لاستقبال إعلانات الأجهزة الأخرى في مركز التحكم الخاص بك وتخزين الفيديوهات الكبيرة دون حد متصفح، يُنصح بربط قاعدة بيانات وتخزين سحابي مشترك.
-      </div>
+    const SHAMCASH_ACCOUNT = "4832844257842450";
+    const ADMIN_CODE = "1993";
+    const MEDIA_BUCKET = "media";
+    const POSTS_TABLE = "posts";
 
-      <div style="margin-bottom: 12px;">
-        <label style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:4px;">وضع النشر والدفع (شام كاش):</label>
-        <select id="monetizationMode" onchange="saveSettings()">
-          <option value="free">نشر مجاني ترويجي (الكل مجاني - بدون دفع)</option>
-          <option value="paid">نشر مدفوع (حسب نوع المنشور: عادي أو مميز)</option>
-        </select>
+    const sbClient = (window.supabase && window.supabase.createClient &&
+      SUPABASE_URL && SUPABASE_ANON_KEY &&
+      !SUPABASE_ANON_KEY.includes("الصق_مفتاح"))
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
-        <div id="paidSettingsBox">
-          <label style="font-size:0.84rem; color:var(--muted); display:block;">رقم حساب شام كاش:</label>
-          <input type="text" id="shamCashId" placeholder="4832844257842450" onchange="saveSettings()" />
-
-          <div class="grid-2">
-            <div>
-              <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (USD):</label>
-              <input type="text" id="normalUsd" onchange="saveSettings()" />
-            </div>
-            <div>
-              <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (ل.س):</label>
-              <input type="text" id="normalSyp" onchange="saveSettings()" />
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (USD):</label>
-              <input type="text" id="featuredUsd" onchange="saveSettings()" />
-            </div>
-            <div>
-              <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (ل.س):</label>
-              <input type="text" id="featuredSyp" onchange="saveSettings()" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 style="font-size:0.95rem; margin-bottom:8px;">طلبات النشر بانتظار الموافقة (<span id="pendingCount">0</span>)</h3>
-      <div id="pendingList"></div>
-      <button type="button" class="action-btn" style="width:100%; margin-top:8px;" onclick="toggleAdmin()">إغلاق مركز التحكم</button>
-    </div>
-  </section>
-
-  <section class="box">
-    <h2>أضف إعلانك الآن (مباشر بدون تسجيل)</h2>
-    <div id="feeBanner" class="free-notice"></div>
-
-    <div class="grid-2">
-      <div>
-        <label style="font-size:0.82rem; color:var(--muted); display:block; margin-bottom:2px;">نوع المنشور:</label>
-        <select id="newPostType" onchange="updateFeeBanner()">
-          <option value="normal">عادي (1 USD أو 15,000 ل.س)</option>
-          <option value="featured">مميز ⭐ (3 USD أو 45,000 ل.س)</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.82rem; color:var(--muted); display:block; margin-bottom:2px;">عملة الرسوم / التسعير:</label>
-        <select id="newCurrency" onchange="updateFeeBanner()">
-          <option value="USD">دولار أمريكي (USD)</option>
-          <option value="SYP">ليرة سورية (ل.س)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <select id="newGov">
-        <option value="دمشق">دمشق</option>
-        <option value="ريف دمشق">ريف دمشق</option>
-        <option value="حلب">حلب</option>
-        <option value="حمص">حمص</option>
-        <option value="حماة">حماة</option>
-        <option value="اللاذقية">اللاذقية</option>
-        <option value="طرطوس">طرطوس</option>
-        <option value="إدلب">إدلب</option>
-        <option value="درعا">درعا</option>
-        <option value="السويداء">السويداء</option>
-        <option value="دير الزور">دير الزور</option>
-        <option value="الحسكة">الحسكة</option>
-        <option value="الرقة">الرقة</option>
-        <option value="القنيطرة">القنيطرة</option>
-      </select>
-      <select id="newCat">
-        <option value="عقارات">عقارات</option>
-        <option value="سيارات">سيارات</option>
-        <option value="معارض وتجارة">معارض وتجارة</option>
-        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
-        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
-      </select>
-    </div>
-
-    <input type="text" id="newTitle" placeholder="عنوان الإعلان (مثال: شقة للبيع في المزة / سيارة كيا ريو)" />
-    <textarea id="newDesc" placeholder="تفاصيل الإعلان والمواصفات كاملة..."></textarea>
-
-    <div class="gps-row">
-      <input type="text" id="newLocation" placeholder="الموقع أو إحداثيات GPS (مثال: 33.5138, 36.2765 أو المزة)" />
-      <button type="button" class="btn-gps" onclick="detectGPS()">موقعي GPS 📍</button>
-    </div>
-    <input type="hidden" id="gpsCoords" />
-    <div id="gpsStatus" class="gps-status">يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.</div>
-
-    <div class="grid-2">
-      <input type="text" id="newPrice" placeholder="السعر المطلوب (مثال: 15,000 USD أو 250,000,000 ل.س)" />
-      <input type="tel" id="newWhatsapp" placeholder="رقم الواتساب (مثال: 9639xxxxxxxx)" />
-    </div>
-
-    <div class="grid-2">
-      <div>
-        <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق صورة من الجهاز:</label>
-        <input type="file" id="newImage" accept="image/*" />
-      </div>
-      <div>
-        <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق مقطع فيديو من الجهاز:</label>
-        <input type="file" id="newVideo" accept="video/*" />
-      </div>
-    </div>
-
-    <button type="button" class="btn btn-primary" onclick="submitPost()">إرسال الإعلان للمراجعة</button>
-  </section>
-
-  <section class="box">
-    <h2>تصفح الإعلانات</h2>
-    <div class="grid-2" style="margin-bottom:0;">
-      <select id="filterGov" onchange="renderFeed()">
-        <option value="all">كل المحافظات</option>
-        <option value="دمشق">دمشق</option>
-        <option value="ريف دمشق">ريف دمشق</option>
-        <option value="حلب">حلب</option>
-        <option value="حمص">حمص</option>
-        <option value="حماة">حماة</option>
-        <option value="اللاذقية">اللاذقية</option>
-        <option value="طرطوس">طرطوس</option>
-        <option value="إدلب">إدلب</option>
-        <option value="درعا">درعا</option>
-        <option value="السويداء">السويداء</option>
-        <option value="دير الزور">دير الزور</option>
-        <option value="الحسكة">الحسكة</option>
-        <option value="الرقة">الرقة</option>
-        <option value="القنيطرة">القنيطرة</option>
-      </select>
-      <select id="filterCat" onchange="renderFeed()">
-        <option value="all">كل الأقسام</option>
-        <option value="عقارات">عقارات</option>
-        <option value="سيارات">سيارات</option>
-        <option value="معارض وتجارة">معارض وتجارة</option>
-        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
-        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
-      </select>
-    </div>
-  </section>
-
-  <div id="feedContainer"></div>
-
-</div>
-
-<script>
-  try {
-    const DEFAULT_SETTINGS = {
-      mode: "free",
-      shamCash: "4832844257842450",
-      normalUsd: "1 USD",
-      normalSyp: "15,000 ل.س",
-      featuredUsd: "3 USD",
-      featuredSyp: "45,000 ل.س"
-    };
-
-    const DEFAULT_POSTS = [
-      {
-        id: 101,
-        postType: "featured",
-        gov: "دمشق",
-        cat: "عقارات",
-        title: "شقة سكنية مميزة طابو أخضر 130 متر",
-        desc: "كسوة ممتازة، طابق ثاني مع مصعد، إطلالة جميلة وجاهزة للسكن الفوري.",
-        locationLabel: "دمشق - المزة",
-        coords: "33.5050,36.2450",
-        price: "55,000 USD",
-        whatsapp: "963900000000",
-        image: "",
-        video: "",
-        approved: true,
-        comments: [
-          { author: "أبو خالد", text: "هل السعر قابل للتفاوض البسيط؟" }
-        ],
-        messages: [
-          { sender: "زائر", text: "مرحباً، هل الشقة متاحة للمعاينة غداً؟" },
-          { sender: "المعلن", text: "أهلاً بك، نعم متاحة من الساعة 2 ظهراً." }
-        ]
-      },
-      {
-        id: 102,
-        postType: "normal",
-        gov: "حلب",
-        cat: "سيارات",
-        title: "سيارة عائلية بحالة ممتازة",
-        desc: "أوتوماتيك، مكيف شغال، صيانة دورية وخالية من الأعطال.",
-        locationLabel: "حلب - الفرقان",
-        coords: "36.2021,37.1343",
-        price: "9,500 USD",
-        whatsapp: "963900000000",
-        image: "",
-        video: "",
-        approved: true,
-        comments: [],
-        messages: []
-      }
-    ];
-
-    let savedSettings = {};
-    try {
-      savedSettings = JSON.parse(localStorage.getItem("sydeal_settings")) || {};
-    } catch (e) {
-      savedSettings = {};
-    }
-
-    let settings = { ...DEFAULT_SETTINGS, ...savedSettings };
-    if (!settings.shamCash) settings.shamCash = "4832844257842450";
-
-    let posts = DEFAULT_POSTS;
-    try {
-      const parsedPosts = JSON.parse(localStorage.getItem("sydeal_posts"));
-      if (Array.isArray(parsedPosts) && parsedPosts.length > 0) {
-        posts = parsedPosts;
-      }
-    } catch (e) {
-      posts = DEFAULT_POSTS;
-    }
-
+    let postsCache = [];
     let isAdminLoggedIn = false;
-    let openShareId = null;
-    let openInteraction = {};
+    let monetizationConfig = {
+      freePosting: true,
+      normalPrice: 2,
+      featuredPrice: 5
+    };
 
-    function escapeAttr(str) {
-      return String(str || "")
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
         .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;")
         .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
-    function savePosts() {
-      try {
-        localStorage.setItem("sydeal_posts", JSON.stringify(posts));
-      } catch (e) {
-        // إذا كان الفيديو كبيراً وتجاوز حد التخزين المحلي، نُبقي المنشور في الجلسة الحالية وننبه المستخدم
-        alert("تنبيه: حجم الملف المرفق كبير جداً على التخزين المحلي للمتصفح، لذا سيبقى ظاهر في هذه الجلسة حتى يتم ربط تخزين سحابي مشترك.");
-      }
-    }
-
-    window.detectGPS = function() {
-      const statusEl = document.getElementById("gpsStatus");
-      const locInput = document.getElementById("newLocation");
-      const coordsInput = document.getElementById("gpsCoords");
-
-      if (!navigator.geolocation) {
-        statusEl.textContent = "المتصفح لا يدعم GPS، يمكنك كتابة الموقع يدوياً.";
-        return;
-      }
-
-      statusEl.textContent = "جاري تحديد موقعك عبر GPS...";
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
-          const pair = `${lat},${lng}`;
-          coordsInput.value = pair;
-          if (!locInput.value.trim()) {
-            locInput.value = `GPS: ${lat}, ${lng}`;
-          }
-          statusEl.textContent = `تم التقاط إحداثيات GPS بنجاح (${lat}, ${lng}).`;
-        },
-        () => {
-          statusEl.textContent = "تعذر الوصول إلى GPS (تأكد من تفعيل الموقع في الهاتف أو اكتب العنوان يدوياً).";
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-    };
-
-    function buildMapUrl(locationLabel, coords) {
-      if (coords && coords.trim()) {
-        return `https://www.google.com/maps?q=${encodeURIComponent(coords.trim())}`;
-      }
-      const coordMatch = (locationLabel || "").match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
-      if (coordMatch) {
-        return `https://www.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}`;
-      }
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationLabel || "سوريا")}`;
-    }
-
-    function getFeeText(postType, currency) {
-      if (settings.mode === "free") return "مجاني (0)";
-      if (postType === "featured") {
-        return currency === "SYP" ? settings.featuredSyp : settings.featuredUsd;
-      }
-      return currency === "SYP" ? settings.normalSyp : settings.normalUsd;
-    }
-
-    function syncPaidSettingsVisibility() {
-      const paidBox = document.getElementById("paidSettingsBox");
-      if (!paidBox) return;
-      if (settings.mode === "free") {
-        paidBox.classList.add("hidden");
-      } else {
-        paidBox.classList.remove("hidden");
-      }
-    }
-
-    window.updateFeeBanner = function() {
-      const banner = document.getElementById("feeBanner");
-      const typeEl = document.getElementById("newPostType");
-      const currEl = document.getElementById("newCurrency");
-      const typeLabel = typeEl && typeEl.value === "featured" ? "منشور مميز ⭐" : "منشور عادي";
-
-      syncPaidSettingsVisibility();
-
-      if (settings.mode === "free") {
-        banner.className = "free-notice";
-        banner.innerHTML = `✅ النشر المجاني مفعل حالياً — يمكنك إرسال إعلانك (${typeLabel}) مجاناً دون أي تحويل عبر شام كاش.`;
-        return;
-      }
-
-      const feeDisplay = getFeeText(typeEl ? typeEl.value : "normal", currEl ? currEl.value : "USD");
-      banner.className = "fee-notice";
-      banner.innerHTML = `
-        نوع الإعلان المختار: <b>${typeLabel}</b> — الرسوم: <b>${feeDisplay}</b><br/>
-        الدفع عبر <b>شام كاش</b> على الحساب: <b style="user-select:all;">${escapeAttr(settings.shamCash)}</b> ثم أرسل الإعلان للموافقة.
-      `;
-    };
-
-    window.toggleAdmin = function() {
-      document.getElementById("adminPanel").classList.toggle("hidden");
-    };
-
-    window.loginAdmin = function() {
-      const pass = document.getElementById("adminPassInput").value;
-      if (pass === "1993") {
-        isAdminLoggedIn = true;
-        document.getElementById("adminLoginBox").classList.add("hidden");
-        document.getElementById("adminControls").classList.remove("hidden");
-        document.getElementById("monetizationMode").value = settings.mode;
-        document.getElementById("shamCashId").value = settings.shamCash;
-        document.getElementById("normalUsd").value = settings.normalUsd;
-        document.getElementById("normalSyp").value = settings.normalSyp;
-        document.getElementById("featuredUsd").value = settings.featuredUsd;
-        document.getElementById("featuredSyp").value = settings.featuredSyp;
-        syncPaidSettingsVisibility();
-        renderPending();
-        renderFeed();
-      } else {
-        alert("رمز الإدارة غير صحيح");
-      }
-    };
-
-    window.saveSettings = function() {
-      settings.mode = document.getElementById("monetizationMode").value;
-      settings.shamCash = document.getElementById("shamCashId").value.trim() || "4832844257842450";
-      settings.normalUsd = document.getElementById("normalUsd").value.trim() || "1 USD";
-      settings.normalSyp = document.getElementById("normalSyp").value.trim() || "15,000 ل.س";
-      settings.featuredUsd = document.getElementById("featuredUsd").value.trim() || "3 USD";
-      settings.featuredSyp = document.getElementById("featuredSyp").value.trim() || "45,000 ل.س";
-      try {
-        localStorage.setItem("sydeal_settings", JSON.stringify(settings));
-      } catch (e) {}
-      window.updateFeeBanner();
-    };
-
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve) => {
-        if (!file) {
-          resolve("");
-          return;
-        }
-        try {
-          const objectUrl = URL.createObjectURL(file);
-          resolve(objectUrl);
-        } catch (e) {
-          resolve("");
-        }
-      });
-    }
-
-    window.submitPost = async function() {
-      const postType = document.getElementById("newPostType").value;
-      const currency = document.getElementById("newCurrency").value;
-      const gov = document.getElementById("newGov").value;
-      const cat = document.getElementById("newCat").value;
-      const title = document.getElementById("newTitle").value.trim();
-      const desc = document.getElementById("newDesc").value.trim();
-      const locationLabel = document.getElementById("newLocation").value.trim() || gov;
-      const coords = document.getElementById("gpsCoords").value.trim();
-      const rawPrice = document.getElementById("newPrice").value.trim();
-      const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^0-9]/g, "");
-      const imgFile = document.getElementById("newImage").files[0];
-      const vidFile = document.getElementById("newVideo").files[0];
-
-      if (!title || !desc) {
-        alert("يرجى كتابة عنوان الإعلان وتفاصيله");
-        return;
-      }
-
-      const formattedPrice = rawPrice
-        ? (rawPrice.includes("USD") || rawPrice.includes("ل.س")
-            ? rawPrice
-            : `${rawPrice} ${currency === "SYP" ? "ل.س" : "USD"}`)
-        : "السعر عند التواصل";
-
-      const imageUrl = await readFileAsDataUrl(imgFile);
-      const videoUrl = await readFileAsDataUrl(vidFile);
-
-      const newPost = {
-        id: Date.now(),
-        postType,
-        gov,
-        cat,
-        title,
-        desc,
-        locationLabel,
-        coords,
-        price: formattedPrice,
-        whatsapp: whatsapp || "963900000000",
-        image: imageUrl || "",
-        video: videoUrl || "",
-        hasVideoFile: Boolean(vidFile),
-        approved: false,
-        comments: [],
-        messages: []
+    function mapDbRowToPost(row) {
+      return {
+        id: Number(row.id),
+        post_type: row.post_type || "normal",
+        gov: row.gov || "",
+        cat: row.cat || "",
+        title: row.title || "",
+        desc: row.description || "",
+        location_label: row.location_label || "",
+        coords: row.coords || "",
+        price: row.price || "",
+        whatsapp: row.whatsapp || "",
+        image_url: row.image_url || "",
+        video_url: row.video_url || "",
+        approved: Boolean(row.approved),
+        comments: Array.isArray(row.comments) ? row.comments : [],
+        messages: Array.isArray(row.messages) ? row.messages : [],
+        created_at: row.created_at || new Date().toISOString()
       };
-
-      posts.unshift(newPost);
-      savePosts();
-
-      document.getElementById("newTitle").value = "";
-      document.getElementById("newDesc").value = "";
-      document.getElementById("newLocation").value = "";
-      document.getElementById("gpsCoords").value = "";
-      document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
-      document.getElementById("newPrice").value = "";
-      document.getElementById("newWhatsapp").value = "";
-      document.getElementById("newImage").value = "";
-      document.getElementById("newVideo").value = "";
-
-      if (settings.mode === "free") {
-        alert("تم إرسال إعلانك المجاني بنجاح! سيظهر في المنصة فور موافقة الإدارة.");
-      } else {
-        const feeInfo = getFeeText(postType, currency);
-        alert(`تم استلام إعلانك (${postType === "featured" ? "مميز" : "عادي"} - ${feeInfo}) عبر حساب شام كاش (${settings.shamCash}). سيظهر بعد موافقة الإدارة.`);
-      }
-      if (isAdminLoggedIn) renderPending();
-    };
-
-    window.approvePost = function(id) {
-      const post = posts.find(p => p.id === id);
-      if (post) post.approved = true;
-      savePosts();
-      renderPending();
-      renderFeed();
-    };
-
-    window.deletePost = function(id) {
-      posts = posts.filter(p => p.id !== id);
-      savePosts();
-      renderPending();
-      renderFeed();
-    };
-
-    function renderPending() {
-      const pending = posts.filter(p => !p.approved);
-      document.getElementById("pendingCount").textContent = pending.length;
-      const container = document.getElementById("pendingList");
-      if (!pending.length) {
-        container.innerHTML = "<p style='font-size:0.85rem; color:var(--muted);'>لا توجد طلبات معلقة حالياً.</p>";
-        return;
-      }
-      container.innerHTML = pending.map(p => `
-        <div class="pending-item">
-          <strong>${escapeAttr(p.title)}</strong> [${p.postType === "featured" ? "مميز ⭐" : "عادي"}] (${escapeAttr(p.gov)} - ${escapeAttr(p.cat)})<br/>
-          <small>${escapeAttr(p.desc)}</small><br/>
-          ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline style="margin-top:6px; max-height:180px;"></video>` : ""}
-          <div style="margin-top:6px; display:flex; gap:6px;">
-            <button type="button" class="btn-success" onclick="approvePost(${p.id})">موافقة ونشر</button>
-            <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
-          </div>
-        </div>
-      `).join("");
     }
 
-    window.toggleShareMenu = function(id) {
-      openShareId = openShareId === id ? null : id;
-      renderFeed();
-    };
+    function mapPostToDbRow(post) {
+      return {
+        id: Number(post.id),
+        post_type: post.post_type || "normal",
+        gov: post.gov,
+        cat: post.cat,
+        title: post.title,
+        description: post.desc,
+        location_label: post.location_label || "",
+        coords: post.coords || "",
+        price: post.price || "",
+        whatsapp: post.whatsapp || "",
+        image_url: post.image_url || "",
+        video_url: post.video_url || "",
+        approved: Boolean(post.approved),
+        comments: Array.isArray(post.comments) ? post.comments : [],
+        messages: Array.isArray(post.messages) ? post.messages : [],
+        created_at: post.created_at || new Date().toISOString()
+      };
+    }
 
-    window.nativeShareById = function(id) {
-      const p = posts.find(item => item.id === id);
-      if (!p) return;
-      const text = `${p.title} — السعر: ${p.price}\nعبر منصة الصفقة السورية: ${window.location.href}`;
-      if (navigator.share) {
-        navigator.share({ title: p.title, text, url: window.location.href }).catch(() => {});
-      } else {
-        copyShareById(id);
+    function loadLocalFallback() {
+      try {
+        const raw = localStorage.getItem("sydeal_posts_fallback");
+        postsCache = raw ? JSON.parse(raw).map(mapDbRowToPost) : [];
+      } catch (_) {
+        postsCache = [];
       }
-    };
+      try {
+        const cfg = localStorage.getItem("sydeal_monetization");
+        if (cfg) monetizationConfig = { ...monetizationConfig, ...JSON.parse(cfg) };
+      } catch (_) {}
+    }
 
-    window.copyShareById = function(id) {
-      const p = posts.find(item => item.id === id);
-      const locText = p ? (p.locationLabel || p.gov) : "";
-      const text = p
-        ? `${p.title} — السعر: ${p.price} (${locText})\nعبر الصفقة السورية: ${window.location.href}`
-        : window.location.href;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => alert("تم نسخ تفاصيل ورابط الإعلان!"));
-      } else {
-        alert("انسخ الرابط من شريط العنوان: " + window.location.href);
-      }
-    };
+    function saveLocalFallback() {
+      try {
+        localStorage.setItem("sydeal_posts_fallback", JSON.stringify(postsCache));
+        localStorage.setItem("sydeal_monetization", JSON.stringify(monetizationConfig));
+      } catch (_) {}
+    }
 
-    window.togglePanel = function(postId, mode) {
-      openInteraction[postId] = openInteraction[postId] === mode ? null : mode;
-      renderFeed();
-    };
-
-    window.addComment = function(postId) {
-      const nameInput = document.getElementById(`cName_${postId}`);
-      const textInput = document.getElementById(`cText_${postId}`);
-      const author = (nameInput.value || "زائر").trim();
-      const text = textInput.value.trim();
-      if (!text) return;
-
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        post.comments = post.comments || [];
-        post.comments.push({ author, text });
-        savePosts();
-        openInteraction[postId] = "comments";
+    async function refreshPosts(notify = false) {
+      const statusEl = document.getElementById("dbStatus");
+      if (!sbClient) {
+        loadLocalFallback();
+        statusEl.textContent = "وضع محلي مؤقت (أدخل مفتاح Publishable key لتفعيل السحابة)";
         renderFeed();
+        renderAdminLists();
+        if (notify) showToast("تم تحديث القائمة المحلية");
+        return;
       }
-    };
 
-    window.sendChatMessage = function(postId) {
-      const roleSelect = document.getElementById(`mRole_${postId}`);
-      const textInput = document.getElementById(`mText_${postId}`);
-      const sender = roleSelect ? roleSelect.value : "زائر";
-      const text = textInput.value.trim();
-      if (!text) return;
+      try {
+        statusEl.textContent = "جاري المزامنة مع Supabase...";
+        const { data, error } = await sbClient
+          .from(POSTS_TABLE)
+          .select("*")
+          .order("id", { ascending: false });
 
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        post.messages = post.messages || [];
-        post.messages.push({ sender, text });
-        savePosts();
-        openInteraction[postId] = "chat";
+        if (error) throw error;
+
+        postsCache = Array.isArray(data) ? data.map(mapDbRowToPost) : [];
+        saveLocalFallback();
+        statusEl.textContent = "متصل بـ Supabase (مزامنة مباشرة)";
         renderFeed();
+        renderAdminLists();
+        if (notify) showToast("تم تحديث البيانات من السحابة");
+      } catch (err) {
+        console.error(err);
+        loadLocalFallback();
+        statusEl.textContent = "تعذر الاتصال بالسحابة - عرض النسخة المحفوظة";
+        renderFeed();
+        renderAdminLists();
+        if (notify) showToast("حدث خطأ أثناء الاتصال بقاعدة البيانات");
       }
-    };
+    }
+
+    async function uploadMediaFile(file, folder) {
+      if (!file) return "";
+      if (!sbClient) {
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const safeName = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+      const { error } = await sbClient.storage
+        .from(MEDIA_BUCKET)
+        .upload(safeName, file, { cacheControl: "3600", upsert: false });
+
+      if (error) throw error;
+
+      const { data } = sbClient.storage.from(MEDIA_BUCKET).getPublicUrl(safeName);
+      return data?.publicUrl || "";
+    }
+
+    function openCreateModal() {
+      updateMonetizationBanner();
+      document.getElementById("createModal").classList.add("open");
+    }
+
+    function closeCreateModal() {
+      document.getElementById("createModal").classList.remove("open");
+    }
+
+    function updateMonetizationBanner() {
+      const type = document.getElementById("postType").value;
+      const fee = type === "featured" ? monetizationConfig.featuredPrice : monetizationConfig.normalPrice;
+      const box = document.getElementById("monetizationNotice");
+
+      if (monetizationConfig.freePosting && type !== "featured") {
+        box.innerHTML = `النشر العادي متاح مجاناً حالياً. (حساب شام كاش للإعلانات المميزة: <strong>${SHAMCASH_ACCOUNT}</strong> - قيمة المميز: <strong>$${monetizationConfig.featuredPrice}</strong>)`;
+      } else {
+        box.innerHTML = `قيمة نشر هذا الإعلان: <strong>$${fee}</strong> عبر حساب <strong>شام كاش</strong> رقم: <strong>${SHAMCASH_ACCOUNT}</strong>. سيُراجع الإعلان من الإدارة قبل الظهور للجميع.`;
+      }
+    }
+
+    async function submitPost(e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = "جاري الرفع والإرسال...";
+
+      try {
+        const imgFile = document.getElementById("imageFile").files[0] || null;
+        const vidFile = document.getElementById("videoFile").files[0] || null;
+
+        const imageUrl = await uploadMediaFile(imgFile, "images");
+        const videoUrl = await uploadMediaFile(vidFile, "videos");
+
+        const newPost = {
+          id: Date.now(),
+          post_type: document.getElementById("postType").value,
+          gov: document.getElementById("postGov").value,
+          cat: document.getElementById("postCat").value,
+          title: document.getElementById("postTitle").value.trim(),
+          desc: document.getElementById("postDesc").value.trim(),
+          location_label: document.getElementById("postLocation").value.trim(),
+          coords: "",
+          price: document.getElementById("postPrice").value.trim(),
+          whatsapp: document.getElementById("postWhatsapp").value.trim().replace(/[^\d+]/g, ""),
+          image_url: imageUrl,
+          video_url: videoUrl,
+          approved: false,
+          comments: [],
+          messages: [],
+          created_at: new Date().toISOString()
+        };
+
+        if (sbClient) {
+          const { error } = await sbClient.from(POSTS_TABLE).insert([mapPostToDbRow(newPost)]);
+          if (error) throw error;
+        } else {
+          postsCache.unshift(newPost);
+          saveLocalFallback();
+        }
+
+        document.getElementById("postForm").reset();
+        closeCreateModal();
+        await refreshPosts(false);
+        showToast("تم إرسال إعلانك بنجاح وهو بانتظار موافقة الإدارة");
+      } catch (err) {
+        console.error(err);
+        showToast("تعذر إرسال الإعلان، تحقق من الإعدادات والاتصال");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "إرسال الإعلان للمراجعة";
+      }
+    }
 
     function renderFeed() {
-      const govEl = document.getElementById("filterGov");
-      const catEl = document.getElementById("filterCat");
-      const gov = govEl ? govEl.value : "all";
-      const cat = catEl ? catEl.value : "all";
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+      const gov = document.getElementById("govFilter").value;
+      const cat = document.getElementById("catFilter").value;
+      const container = document.getElementById("feedContainer");
 
-      const approvedPosts = posts
-        .filter(p =>
-          p &&
-          p.approved &&
-          (gov === "all" || p.gov === gov) &&
-          (cat === "all" || p.cat === cat)
-        )
+      const visiblePosts = postsCache
+        .filter((p) => p.approved)
+        .filter((p) => !gov || p.gov === gov)
+        .filter((p) => !cat || p.cat === cat)
+        .filter((p) => {
+          if (!q) return true;
+          return (
+            (p.title || "").toLowerCase().includes(q) ||
+            (p.desc || "").toLowerCase().includes(q) ||
+            (p.gov || "").toLowerCase().includes(q) ||
+            (p.cat || "").toLowerCase().includes(q)
+          );
+        })
         .sort((a, b) => {
-          if (a.postType === "featured" && b.postType !== "featured") return -1;
-          if (a.postType !== "featured" && b.postType === "featured") return 1;
-          return (b.id || 0) - (a.id || 0);
+          if (a.post_type === "featured" && b.post_type !== "featured") return -1;
+          if (b.post_type === "featured" && a.post_type !== "featured") return 1;
+          return Number(b.id) - Number(a.id);
         });
 
-      const container = document.getElementById("feedContainer");
-      if (!approvedPosts.length) {
-        container.innerHTML = `<div class="box"><p style="text-align:center; color:var(--muted);">لا توجد إعلانات في هذا القسم حالياً.</p></div>`;
+      document.getElementById("postsCount").textContent = `${visiblePosts.length} إعلان معتمد`;
+
+      if (!visiblePosts.length) {
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);">لا توجد إعلانات مطابقة حالياً. كن أول من يضيف إعلاناً!</div>`;
         return;
       }
 
-      container.innerHTML = approvedPosts.map(p => {
-        const isFeatured = p.postType === "featured";
-        const comments = Array.isArray(p.comments) ? p.comments : [];
-        const messages = Array.isArray(p.messages) ? p.messages : [];
-        const activePanel = openInteraction[p.id] || null;
-        const locText = p.locationLabel || p.gov;
-        const mapUrl = buildMapUrl(locText, p.coords);
-        const encodedShareText = encodeURIComponent(`${p.title} - السعر: ${p.price} | الصفقة السورية`);
-        const encodedUrl = encodeURIComponent(window.location.href);
-
+      container.innerHTML = visiblePosts.map((p) => {
+        const cleanWa = (p.whatsapp || "").replace(/[^\d]/g, "");
+        const shareText = encodeURIComponent(`${p.title} - ${p.gov} (${p.cat})\n${p.price ? "السعر: " + p.price + "\n" : ""}${window.location.href}`);
         return `
-          <article class="post-card ${isFeatured ? "featured" : ""}">
-            <div class="post-header">
-              <div class="badges-group">
-                <span class="badge">${escapeAttr(p.gov)} • ${escapeAttr(p.cat)}</span>
-                ${isFeatured
-                  ? `<span class="badge-featured">منشور مميز ⭐</span>`
-                  : `<span class="badge-normal">منشور عادي</span>`}
-              </div>
-              ${isAdminLoggedIn ? `<button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>` : ""}
+          <article class="post-card ${p.post_type === "featured" ? "featured" : ""}">
+            <div class="post-meta">
+              <span class="tag">${escapeHtml(p.gov)}</span>
+              <span class="tag">${escapeHtml(p.cat)}</span>
+              ${p.post_type === "featured" ? `<span class="tag featured-tag">★ مميز</span>` : ""}
+              ${p.location_label ? `<span>📍 ${escapeHtml(p.location_label)}</span>` : ""}
             </div>
+            <h3 class="post-title">${escapeHtml(p.title)}</h3>
+            ${p.price ? `<div class="price-box">${escapeHtml(p.price)}</div>` : ""}
+            <p style="margin:0 0 8px;white-space:pre-line;">${escapeHtml(p.desc)}</p>
 
-            <h3 class="post-title">${escapeAttr(p.title)}</h3>
-            <div class="post-desc">${escapeAttr(p.desc)}</div>
-
-            <div class="location-box">
-              <span>📍 الموقع: <b>${escapeAttr(locText)}</b></span>
-              <a class="map-link" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">فتح الخريطة 🗺️</a>
-            </div>
-
-            ${p.image ? `<img src="${escapeAttr(p.image)}" class="post-img" alt="${escapeAttr(p.title)}" />` : ""}
-            ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline preload="metadata"></video>` : ""}
-            <div class="post-price">${escapeAttr(p.price)}</div>
+            ${p.image_url ? `<div class="media-box"><img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.title)}" loading="lazy" /></div>` : ""}
+            ${p.video_url ? `<div class="media-box"><video src="${escapeHtml(p.video_url)}" controls playsinline preload="metadata"></video></div>` : ""}
 
             <div class="post-actions">
-              <a class="action-btn wa" href="https://wa.me/${escapeAttr(p.whatsapp)}?text=${encodeURIComponent('مرحباً، بخصوص إعلانك في الصفقة السورية: ' + p.title)}" target="_blank" rel="noopener">واتساب</a>
-              <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'chat')">محادثة (${messages.length})</button>
-              <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'comments')">تعليقات (${comments.length})</button>
-              <button type="button" class="action-btn" onclick="toggleShareMenu(${p.id})">مشاركة</button>
+              ${cleanWa ? `<a href="https://wa.me/${cleanWa}" target="_blank" rel="noopener"><button type="button" class="btn-success">💬 واتساب</button></a>` : ""}
+              <button type="button" class="btn-ghost" onclick="toggleSubBox('comments-${p.id}')">💭 التعليقات (${p.comments.length})</button>
+              <button type="button" class="btn-ghost" onclick="toggleSubBox('chat-${p.id}')">✉️ مراسلة (${p.messages.length})</button>
+              <a href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener"><button type="button" class="btn-ghost">↗ مشاركة</button></a>
             </div>
 
-            ${openShareId === p.id ? `
-              <div class="share-bar">
-                <a class="share-chip" target="_blank" rel="noopener" href="https://wa.me/?text=${encodedShareText}%20${encodedUrl}">واتساب</a>
-                <a class="share-chip" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}">فيسبوك</a>
-                <a class="share-chip" target="_blank" rel="noopener" href="https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}">تيليغرام</a>
-                <button type="button" class="share-chip" onclick="copyShareById(${p.id})">نسخ النص والرابط</button>
-                <button type="button" class="share-chip" onclick="nativeShareById(${p.id})">مشاركة الجهاز</button>
+            <div id="comments-${p.id}" class="sub-box hidden">
+              <div>
+                ${p.comments.map((c) => `<div class="list-item"><strong>${escapeHtml(c.author || "زائر")}:</strong> ${escapeHtml(c.text)}</div>`).join("") || `<div style="color:var(--muted);font-size:0.85rem;">لا توجد تعليقات بعد.</div>`}
               </div>
-            ` : ""}
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <input id="cName_${p.id}" type="text" placeholder="الاسم (اختياري)" style="max-width:160px;" />
+                <input id="cText_${p.id}" type="text" placeholder="اكتب تعليقك..." />
+                <button type="button" class="btn-primary" onclick="addComment(${p.id})">إرسال</button>
+              </div>
+            </div>
 
-            ${activePanel === "comments" ? `
-              <div class="interaction-panel">
-                <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">التعليقات على الإعلان:</strong>
-                ${comments.length
-                  ? comments.map(c => `
-                      <div class="comment-item">
-                        <span class="comment-author">${escapeAttr(c.author)}</span>
-                        <span>${escapeAttr(c.text)}</span>
-                      </div>
-                    `).join("")
-                  : `<div style="font-size:0.82rem; color:var(--muted); margin-bottom:6px;">لا توجد تعليقات بعد، كن أول من يعلق.</div>`
-                }
-                <input type="text" id="cName_${p.id}" placeholder="اسمك (اختياري)" style="margin-bottom:6px;" />
-                <div style="display:flex; gap:6px;">
-                  <input type="text" id="cText_${p.id}" placeholder="اكتب تعليقك..." style="margin-bottom:0;" />
-                  <button type="button" class="btn-success" onclick="addComment(${p.id})">إرسال</button>
-                </div>
+            <div id="chat-${p.id}" class="sub-box hidden">
+              <div>
+                ${p.messages.map((m) => `<div class="list-item"><strong>${escapeHtml(m.sender || "مشتري")}:</strong> ${escapeHtml(m.text)}</div>`).join("") || `<div style="color:var(--muted);font-size:0.85rem;">ابدأ المحادثة حول الإعلان الآن.</div>`}
               </div>
-            ` : ""}
-
-            ${activePanel === "chat" ? `
-              <div class="interaction-panel">
-                <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">محادثة مباشرة حول الإعلان:</strong>
-                <div class="chat-box">
-                  ${messages.length
-                    ? messages.map(m => `
-                        <div class="chat-msg ${m.sender === "المعلن" ? "seller" : ""}">
-                          <b>${escapeAttr(m.sender)}:</b> ${escapeAttr(m.text)}
-                        </div>
-                      `).join("")
-                    : `<div style="font-size:0.82rem; color:var(--muted);">ابدأ المحادثة مع المعلن الآن.</div>`
-                  }
-                </div>
-                <div style="display:flex; gap:6px; align-items:center;">
-                  <select id="mRole_${p.id}" style="width:auto; margin-bottom:0; padding:8px;">
-                    <option value="زائر">زائر</option>
-                    <option value="المعلن">المعلن</option>
-                  </select>
-                  <input type="text" id="mText_${p.id}" placeholder="اكتب رسالتك..." style="margin-bottom:0;" />
-                  <button type="button" class="btn-success" onclick="sendChatMessage(${p.id})">إرسال</button>
-                </div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <input id="mText_${p.id}" type="text" placeholder="اكتب رسالتك للمعلن..." />
+                <button type="button" class="btn-success" onclick="sendChatMessage(${p.id})">إرسال</button>
               </div>
-            ` : ""}
+            </div>
           </article>
         `;
       }).join("");
     }
 
-    window.updateFeeBanner();
-    renderFeed();
+    function toggleSubBox(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("hidden");
+    }
+
+    async function addComment(postId) {
+      const nameEl = document.getElementById(`cName_${postId}`);
+      const textEl = document.getElementById(`cText_${postId}`);
+      const text = (textEl?.value || "").trim();
+      if (!text) return;
+
+      const post = postsCache.find((p) => Number(p.id) === Number(postId));
+      if (!post) return;
+
+      post.comments = Array.isArray(post.comments) ? post.comments : [];
+      post.comments.push({
+        author: (nameEl?.value || "").trim() || "زائر",
+        text,
+        at: new Date().toISOString()
+      });
+
+      await persistPostUpdate(post);
+      if (textEl) textEl.value = "";
+      renderFeed();
+      showToast("تمت إضافة التعليق");
+    }
+
+    async function sendChatMessage(postId) {
+      const textEl = document.getElementById(`mText_${postId}`);
+      const text = (textEl?.value || "").trim();
+      if (!text) return;
+
+      const post = postsCache.find((p) => Number(p.id) === Number(postId));
+      if (!post) return;
+
+      post.messages = Array.isArray(post.messages) ? post.messages : [];
+      post.messages.push({
+        sender: "مشتري",
+        text,
+        at: new Date().toISOString()
+      });
+
+      await persistPostUpdate(post);
+      if (textEl) textEl.value = "";
+      renderFeed();
+      showToast("تم إرسال الرسالة");
+    }
+
+    async function persistPostUpdate(post) {
+      saveLocalFallback();
+      if (sbClient) {
+        const { error } = await sbClient
+          .from(POSTS_TABLE)
+          .update(mapPostToDbRow(post))
+          .eq("id", post.id);
+        if (error) console.error(error);
+      }
+    }
+
+    function openAdminGate() {
+      if (isAdminLoggedIn) {
+        document.getElementById("adminPanel").classList.remove("hidden");
+        renderAdminLists();
+        return;
+      }
+      const code = prompt("أدخل رمز الإدارة:");
+      if (code === ADMIN_CODE) {
+        isAdminLoggedIn = true;
+        document.getElementById("freePostingToggle").checked = Boolean(monetizationConfig.freePosting);
+        document.getElementById("normalPriceInput").value = monetizationConfig.normalPrice;
+        document.getElementById("featuredPriceInput").value = monetizationConfig.featuredPrice;
+        document.getElementById("adminPanel").classList.remove("hidden");
+        renderAdminLists();
+        showToast("تم فتح لوحة الإدارة");
+      } else if (code !== null) {
+        showToast("رمز الإدارة غير صحيح");
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminLoggedIn = false;
+      document.getElementById("adminPanel").classList.add("hidden");
+    }
+
+    function saveMonetizationSettings() {
+      monetizationConfig = {
+        freePosting: document.getElementById("freePostingToggle").checked,
+        normalPrice: Number(document.getElementById("normalPriceInput").value) || 0,
+        featuredPrice: Number(document.getElementById("featuredPriceInput").value) || 0
+      };
+      saveLocalFallback();
+      updateMonetizationBanner();
+      showToast("تم حفظ إعدادات النشر والتسعير");
+    }
+
+    function renderAdminLists() {
+      if (!isAdminLoggedIn) return;
+      const pending = postsCache.filter((p) => !p.approved);
+      const approved = postsCache.filter((p) => p.approved);
+
+      document.getElementById("pendingList").innerHTML = pending.map((p) => `
+        <div class="list-item">
+          <div style="font-weight:700;">${escapeHtml(p.title)} <span class="tag pending-tag">بانتظار الموافقة</span></div>
+          <div style="font-size:0.82rem;color:var(--muted);margin:4px 0;">${escapeHtml(p.gov)} - ${escapeHtml(p.cat)} ${p.price ? "• " + escapeHtml(p.price) : ""}</div>
+          <div style="font-size:0.85rem;margin-bottom:6px;">${escapeHtml(p.desc)}</div>
+          ${p.image_url ? `<div style="margin-bottom:6px;"><a href="${escapeHtml(p.image_url)}" target="_blank">عرض الصورة</a></div>` : ""}
+          ${p.video_url ? `<div style="margin-bottom:6px;"><a href="${escapeHtml(p.video_url)}" target="_blank">عرض الفيديو</a></div>` : ""}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn-success" onclick="approvePost(${p.id}, true)">موافقة ونشر</button>
+            <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
+          </div>
+        </div>
+      `).join("") || `<div class="list-item" style="color:var(--muted);">لا توجد إعلانات معلقة.</div>`;
+
+      document.getElementById("approvedAdminList").innerHTML = approved.map((p) => `
+        <div class="list-item">
+          <div style="font-weight:700;">${escapeHtml(p.title)} <span class="tag approved-tag">منشور</span></div>
+          <div style="font-size:0.82rem;color:var(--muted);margin:4px 0;">${escapeHtml(p.gov)} - ${escapeHtml(p.cat)}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn-ghost" onclick="approvePost(${p.id}, false)">إخفاء</button>
+            <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
+          </div>
+        </div>
+      `).join("") || `<div class="list-item" style="color:var(--muted);">لا توجد إعلانات منشورة حالياً.</div>`;
+    }
+
+    async function approvePost(postId, approvedState) {
+      const post = postsCache.find((p) => Number(p.id) === Number(postId));
+      if (!post) return;
+      post.approved = approvedState;
+      await persistPostUpdate(post);
+      renderFeed();
+      renderAdminLists();
+      showToast(approvedState ? "تمت الموافقة ونشر الإعلان" : "تم إخفاء الإعلان");
+    }
+
+    async function deletePost(postId) {
+      postsCache = postsCache.filter((p) => Number(p.id) !== Number(postId));
+      saveLocalFallback();
+      if (sbClient) {
+        const { error } = await sbClient.from(POSTS_TABLE).delete().eq("id", postId);
+        if (error) console.error(error);
+      }
+      renderFeed();
+      renderAdminLists();
+      showToast("تم حذف الإعلان");
+    }
 
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
-      });
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
-  } catch (err) {
-    console.error(err);
-  }
-</script>
+
+    refreshPosts(false);
+  </script>
 </body>
 </html>

@@ -144,6 +144,16 @@
       color: var(--muted);
       margin-bottom: 8px;
     }
+    .info-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
     .btn {
       width: 100%;
       padding: 11px;
@@ -250,12 +260,13 @@
       text-decoration: none;
       white-space: nowrap;
     }
-    .post-img {
+    .post-img, .post-video {
       width: 100%;
-      max-height: 320px;
+      max-height: 360px;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 10px;
+      background: #000;
     }
     .post-price {
       font-size: 1.05rem;
@@ -417,6 +428,10 @@
     </div>
 
     <div id="adminControls" class="hidden">
+      <div class="info-note">
+        ملاحظة: حالياً يعمل التخزين محلياً على كل جهاز (`localStorage`). لاستقبال إعلانات الأجهزة الأخرى في مركز التحكم الخاص بك وتخزين الفيديوهات الكبيرة دون حد متصفح، يُنصح بربط قاعدة بيانات وتخزين سحابي مشترك.
+      </div>
+
       <div style="margin-bottom: 12px;">
         <label style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:4px;">وضع النشر والدفع (شام كاش):</label>
         <select id="monetizationMode" onchange="saveSettings()">
@@ -519,8 +534,18 @@
       <input type="text" id="newPrice" placeholder="السعر المطلوب (مثال: 15,000 USD أو 250,000,000 ل.س)" />
       <input type="tel" id="newWhatsapp" placeholder="رقم الواتساب (مثال: 9639xxxxxxxx)" />
     </div>
-    <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق صورة من الجهاز:</label>
-    <input type="file" id="newImage" accept="image/*" />
+
+    <div class="grid-2">
+      <div>
+        <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق صورة من الجهاز:</label>
+        <input type="file" id="newImage" accept="image/*" />
+      </div>
+      <div>
+        <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق مقطع فيديو من الجهاز:</label>
+        <input type="file" id="newVideo" accept="video/*" />
+      </div>
+    </div>
+
     <button type="button" class="btn btn-primary" onclick="submitPost()">إرسال الإعلان للمراجعة</button>
   </section>
 
@@ -583,6 +608,7 @@
         price: "55,000 USD",
         whatsapp: "963900000000",
         image: "",
+        video: "",
         approved: true,
         comments: [
           { author: "أبو خالد", text: "هل السعر قابل للتفاوض البسيط؟" }
@@ -604,6 +630,7 @@
         price: "9,500 USD",
         whatsapp: "963900000000",
         image: "",
+        video: "",
         approved: true,
         comments: [],
         messages: []
@@ -646,7 +673,10 @@
     function savePosts() {
       try {
         localStorage.setItem("sydeal_posts", JSON.stringify(posts));
-      } catch (e) {}
+      } catch (e) {
+        // إذا كان الفيديو كبيراً وتجاوز حد التخزين المحلي، نُبقي المنشور في الجلسة الحالية وننبه المستخدم
+        alert("تنبيه: حجم الملف المرفق كبير جداً على التخزين المحلي للمتصفح، لذا سيبقى ظاهر في هذه الجلسة حتى يتم ربط تخزين سحابي مشترك.");
+      }
     }
 
     window.detectGPS = function() {
@@ -766,7 +796,22 @@
       window.updateFeeBanner();
     };
 
-    window.submitPost = function() {
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve) => {
+        if (!file) {
+          resolve("");
+          return;
+        }
+        try {
+          const objectUrl = URL.createObjectURL(file);
+          resolve(objectUrl);
+        } catch (e) {
+          resolve("");
+        }
+      });
+    }
+
+    window.submitPost = async function() {
       const postType = document.getElementById("newPostType").value;
       const currency = document.getElementById("newCurrency").value;
       const gov = document.getElementById("newGov").value;
@@ -777,7 +822,8 @@
       const coords = document.getElementById("gpsCoords").value.trim();
       const rawPrice = document.getElementById("newPrice").value.trim();
       const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^0-9]/g, "");
-      const fileInput = document.getElementById("newImage");
+      const imgFile = document.getElementById("newImage").files[0];
+      const vidFile = document.getElementById("newVideo").files[0];
 
       if (!title || !desc) {
         alert("يرجى كتابة عنوان الإعلان وتفاصيله");
@@ -790,51 +836,48 @@
             : `${rawPrice} ${currency === "SYP" ? "ل.س" : "USD"}`)
         : "السعر عند التواصل";
 
-      const finalizeSave = (imgData) => {
-        const newPost = {
-          id: Date.now(),
-          postType,
-          gov,
-          cat,
-          title,
-          desc,
-          locationLabel,
-          coords,
-          price: formattedPrice,
-          whatsapp: whatsapp || "963900000000",
-          image: imgData || "",
-          approved: false,
-          comments: [],
-          messages: []
-        };
-        posts.unshift(newPost);
-        savePosts();
+      const imageUrl = await readFileAsDataUrl(imgFile);
+      const videoUrl = await readFileAsDataUrl(vidFile);
 
-        document.getElementById("newTitle").value = "";
-        document.getElementById("newDesc").value = "";
-        document.getElementById("newLocation").value = "";
-        document.getElementById("gpsCoords").value = "";
-        document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
-        document.getElementById("newPrice").value = "";
-        document.getElementById("newWhatsapp").value = "";
-        document.getElementById("newImage").value = "";
-
-        if (settings.mode === "free") {
-          alert("تم إرسال إعلانك المجاني بنجاح! سيظهر في المنصة فور موافقة الإدارة.");
-        } else {
-          const feeInfo = getFeeText(postType, currency);
-          alert(`تم استلام إعلانك (${postType === "featured" ? "مميز" : "عادي"} - ${feeInfo}) عبر حساب شام كاش (${settings.shamCash}). سيظهر بعد موافقة الإدارة.`);
-        }
-        if (isAdminLoggedIn) renderPending();
+      const newPost = {
+        id: Date.now(),
+        postType,
+        gov,
+        cat,
+        title,
+        desc,
+        locationLabel,
+        coords,
+        price: formattedPrice,
+        whatsapp: whatsapp || "963900000000",
+        image: imageUrl || "",
+        video: videoUrl || "",
+        hasVideoFile: Boolean(vidFile),
+        approved: false,
+        comments: [],
+        messages: []
       };
 
-      if (fileInput.files && fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (e) => finalizeSave(e.target.result);
-        reader.readAsDataURL(fileInput.files[0]);
+      posts.unshift(newPost);
+      savePosts();
+
+      document.getElementById("newTitle").value = "";
+      document.getElementById("newDesc").value = "";
+      document.getElementById("newLocation").value = "";
+      document.getElementById("gpsCoords").value = "";
+      document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
+      document.getElementById("newPrice").value = "";
+      document.getElementById("newWhatsapp").value = "";
+      document.getElementById("newImage").value = "";
+      document.getElementById("newVideo").value = "";
+
+      if (settings.mode === "free") {
+        alert("تم إرسال إعلانك المجاني بنجاح! سيظهر في المنصة فور موافقة الإدارة.");
       } else {
-        finalizeSave("");
+        const feeInfo = getFeeText(postType, currency);
+        alert(`تم استلام إعلانك (${postType === "featured" ? "مميز" : "عادي"} - ${feeInfo}) عبر حساب شام كاش (${settings.shamCash}). سيظهر بعد موافقة الإدارة.`);
       }
+      if (isAdminLoggedIn) renderPending();
     };
 
     window.approvePost = function(id) {
@@ -864,6 +907,7 @@
         <div class="pending-item">
           <strong>${escapeAttr(p.title)}</strong> [${p.postType === "featured" ? "مميز ⭐" : "عادي"}] (${escapeAttr(p.gov)} - ${escapeAttr(p.cat)})<br/>
           <small>${escapeAttr(p.desc)}</small><br/>
+          ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline style="margin-top:6px; max-height:180px;"></video>` : ""}
           <div style="margin-top:6px; display:flex; gap:6px;">
             <button type="button" class="btn-success" onclick="approvePost(${p.id})">موافقة ونشر</button>
             <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
@@ -996,6 +1040,7 @@
             </div>
 
             ${p.image ? `<img src="${escapeAttr(p.image)}" class="post-img" alt="${escapeAttr(p.title)}" />` : ""}
+            ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline preload="metadata"></video>` : ""}
             <div class="post-price">${escapeAttr(p.price)}</div>
 
             <div class="post-actions">

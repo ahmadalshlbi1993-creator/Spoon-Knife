@@ -1,28 +1,212 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="description" content="منصة الصفقة السورية للإعلانات والعقارات والسيارات والخدمات في المحافظات السورية" />
   <title>الصفقة السورية</title>
-  <link rel="stylesheet" href="styles.css" type="text/css"/>
-  <link rel="manifest" href="./manifest.json"/>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      background: #f4f6f8;
+      color: #111827;
+      line-height: 1.6;
+    }
+    header {
+      background: #0f766e;
+      color: #ffffff;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      opacity: 0.92;
+    }
+    .container {
+      max-width: 780px;
+      margin: 18px auto;
+      padding: 0 14px 36px;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #ffffff;
+      padding: 14px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      margin-bottom: 16px;
+    }
+    select, button {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    .badge {
+      display: inline-block;
+      background: #e6f4f1;
+      color: #0f766e;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+    .meta {
+      color: #4b5563;
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-weight: 700;
+      color: #0f766e;
+      margin-bottom: 12px;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: #0f766e;
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-outline {
+      background: #ffffff;
+      color: #111827;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>الصفقة السورية</h1>
+    <p>سوق الإعلانات والعقارات والسيارات والخدمات في المحافظات السورية</p>
+  </header>
 
-<img src="forkit.gif" id="octocat" alt="octocat"/>
+  <main class="container">
+    <section class="filters" aria-label="تصفية الإعلانات">
+      <select id="governorateFilter">
+        <option value="all">كل المحافظات</option>
+        <option value="دمشق">دمشق</option>
+        <option value="ريف دمشق">ريف دمشق</option>
+        <option value="حلب">حلب</option>
+        <option value="حمص">حمص</option>
+        <option value="حماة">حماة</option>
+        <option value="اللاذقية">اللاذقية</option>
+        <option value="طرطوس">طرطوس</option>
+      </select>
 
-<!-- يمكنك تغيير هذا النص هنا -->
-<p>
-  شوكة لي؟ شوكة لك يا @octocat!
-</p>
+      <select id="categoryFilter">
+        <option value="all">كل الأقسام</option>
+        <option value="عقارات">عقارات</option>
+        <option value="سيارات">سيارات</option>
+        <option value="معارض وتجارة">معارض وتجارة</option>
+      </select>
+    </section>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
-</script>
+    <section id="listingsFeed"></section>
+  </main>
 
+  <script>
+    const listings = [
+      {
+        id: 1,
+        title: "شقة سكنية مفروشة إطلالة مميزة",
+        category: "عقارات",
+        governorate: "دمشق",
+        price: "45,000 USD",
+        details: "مساحة 120 م²، طابق ثالث مع مصعد، جاهزة للسكن الفوري."
+      },
+      {
+        id: 2,
+        title: "سيارة عائلية بحالة ممتازة",
+        category: "سيارات",
+        governorate: "حلب",
+        price: "8,200 USD",
+        details: "محرك نظيف ومكيف شغال، صيانة دورية كاملة."
+      },
+      {
+        id: 3,
+        title: "محل تجاري على شارع رئيسي",
+        category: "معارض وتجارة",
+        governorate: "حمص",
+        price: "19,500 USD",
+        details: "واجهة واسعة مناسبة لمعرض أو مكتب تجاري."
+      }
+    ];
+
+    const feedEl = document.getElementById("listingsFeed");
+    const govEl = document.getElementById("governorateFilter");
+    const catEl = document.getElementById("categoryFilter");
+
+    function renderListings() {
+      const gov = govEl.value;
+      const cat = catEl.value;
+      const filtered = listings.filter(
+        (item) =>
+          (gov === "all" || item.governorate === gov) &&
+          (cat === "all" || item.category === cat)
+      );
+
+      if (!filtered.length) {
+        feedEl.innerHTML = '<div class="card"><p>لا توجد إعلانات مطابقة للخيارات المحددة حالياً.</p></div>';
+        return;
+      }
+
+      feedEl.innerHTML = filtered
+        .map(
+          (item) => `
+          <article class="card">
+            <span class="badge">${item.category} • ${item.governorate}</span>
+            <h2>${item.title}</h2>
+            <div class="meta">${item.details}</div>
+            <div class="price">${item.price}</div>
+            <div class="actions">
+              <button class="btn-primary" onclick="alert('تم فتح تفاصيل الإعلان: ${item.title}')">عرض التفاصيل</button>
+              <button class="btn-outline" onclick="alert('مشاركة إعلان: ${item.title}')">مشاركة</button>
+            </div>
+          </article>
+        `
+        )
+        .join("");
+    }
+
+    govEl.addEventListener("change", renderListings);
+    catEl.addEventListener("change", renderListings);
+    renderListings();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

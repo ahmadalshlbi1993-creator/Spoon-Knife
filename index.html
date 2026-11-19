@@ -47,13 +47,14 @@
       gap: 10px;
     }
     .brand-logo {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       flex-shrink: 0;
-      border-radius: 50%;
-      background: #ffffff;
+      border-radius: 12px;
+      background: #0f172a;
       padding: 2px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+      border: 1.5px solid rgba(255,255,255,0.45);
     }
     .brand-text h1 {
       margin: 0;
@@ -164,6 +165,16 @@
       margin-bottom: 10px;
       font-weight: 600;
       border: 1px solid #fcd34d;
+    }
+    .free-notice {
+      background: #dcfce7;
+      color: #166534;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      border: 1px solid #86efac;
     }
     .post-card {
       background: var(--card);
@@ -354,33 +365,52 @@
 
 <header>
   <div class="brand">
-    <!-- كرة أرضية تتوسطها خريطة سوريا ورموز أهداف المنصة -->
-    <svg class="brand-logo" viewBox="0 0 100 100" aria-label="شعار الصفقة السورية - كرة أرضية وخريطة سوريا">
+    <!-- شعار الكرة الأرضية وحاوية التجارة/البضائع مع خريطة سوريا ورموز أهداف المنصة -->
+    <svg class="brand-logo" viewBox="0 0 110 100" aria-label="شعار الصفقة السورية - كرة أرضية وحاوية تجارة وخريطة سوريا">
       <defs>
-        <radialGradient id="globeGrad" cx="35%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#38bdf8" />
-          <stop offset="55%" stop-color="#0284c7" />
-          <stop offset="100%" stop-color="#0f766e" />
+        <radialGradient id="globeSphereGrad" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#7dd3fc" />
+          <stop offset="48%" stop-color="#0284c7" />
+          <stop offset="100%" stop-color="#0f172a" />
         </radialGradient>
+        <linearGradient id="containerWall" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
       </defs>
-      <circle cx="50" cy="50" r="46" fill="url(#globeGrad)" stroke="#0f766e" stroke-width="2.5" />
-      <!-- خطوط الطول والعرض للكرة الأرضية -->
-      <ellipse cx="50" cy="50" rx="24" ry="45" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.2" />
-      <line x1="6" y1="50" x2="94" y2="50" stroke="rgba(255,255,255,0.35)" stroke-width="1.2" />
-      <line x1="14" y1="28" x2="86" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
-      <line x1="14" y1="72" x2="86" y2="72" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
-      <!-- خريطة تقريبية لسوريا داخل الكرة الأرضية -->
-      <path d="M27,44 L36,36 L47,34 L57,30 L69,33 L73,41 L66,47 L59,49 L56,57 L48,59 L40,54 L31,52 Z"
-            fill="#f59e0b" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round" />
-      <!-- أيقونات توحي بأهداف المنصة: عقار، سيارة، تجارة/صفقة -->
-      <polygon points="41,47 45,43 49,47 49,51 41,51" fill="#0f766e" />
-      <rect x="53" y="42" width="10" height="4.5" rx="1.5" fill="#111827" />
-      <circle cx="55" cy="47.5" r="1.4" fill="#ffffff" />
-      <circle cx="61" cy="47.5" r="1.4" fill="#ffffff" />
+
+      <!-- خلفية رقمية ناعمة -->
+      <rect x="0" y="0" width="110" height="100" rx="14" fill="#0f172a" />
+
+      <!-- الكرة الأرضية على اليمين/الوسط -->
+      <circle cx="67" cy="48" r="33" fill="url(#globeSphereGrad)" stroke="#bae6fd" stroke-width="1.8" />
+      <ellipse cx="67" cy="48" rx="17" ry="33" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1" />
+      <line x1="34" y1="48" x2="100" y2="48" stroke="rgba(255,255,255,0.35)" stroke-width="1" />
+      <line x1="40" y1="32" x2="94" y2="32" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" />
+      <line x1="40" y1="64" x2="94" y2="64" stroke="rgba(255,255,255,0.22)" stroke-width="0.9" />
+
+      <!-- خريطة سوريا داخل الكرة الأرضية -->
+      <path d="M53,43 L60,37 L69,36 L77,33 L86,35 L89,41 L83,46 L77,48 L75,54 L68,56 L61,51 L54,50 Z"
+            fill="#f59e0b" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round" />
+      <!-- رموز العقار والسيارة والصفقة -->
+      <polygon points="62,46 65,43 68,46 68,49 62,49" fill="#0f766e" />
+      <rect x="71" y="42" width="8" height="3.8" rx="1.2" fill="#111827" />
+      <circle cx="72.5" cy="46.5" r="1.1" fill="#ffffff" />
+      <circle cx="77.5" cy="46.5" r="1.1" fill="#ffffff" />
+
+      <!-- حاوية الشحن والصناديق التجارية المستوحاة من الصورة -->
+      <polygon points="10,44 36,34 52,41 26,52" fill="#fde68a" stroke="#92400e" stroke-width="1.2" />
+      <polygon points="10,44 26,52 26,84 10,75" fill="url(#containerWall)" stroke="#92400e" stroke-width="1.2" />
+      <polygon points="26,52 52,41 52,73 26,84" fill="#f59e0b" stroke="#92400e" stroke-width="1.2" />
+      <!-- صناديق البضائع داخل الحاوية -->
+      <rect x="30" y="53" width="8" height="8" rx="1" fill="#fef3c7" stroke="#92400e" stroke-width="0.9" />
+      <rect x="40" y="49" width="8" height="8" rx="1" fill="#fef3c7" stroke="#92400e" stroke-width="0.9" />
+      <rect x="30" y="64" width="8" height="8" rx="1" fill="#fde68a" stroke="#92400e" stroke-width="0.9" />
+      <rect x="40" y="60" width="8" height="8" rx="1" fill="#fde68a" stroke="#92400e" stroke-width="0.9" />
     </svg>
     <div class="brand-text">
       <h1>الصفقة السورية</h1>
-      <span>عقارات • سيارات • معارض وتجارة</span>
+      <span>عقارات • سيارات • تجارة وشحن</span>
     </div>
   </div>
   <button class="admin-btn" onclick="toggleAdmin()">مركز التحكم ⚙️</button>
@@ -400,32 +430,34 @@
       <div style="margin-bottom: 12px;">
         <label style="font-weight:bold; font-size:0.9rem; display:block; margin-bottom:4px;">وضع النشر والدفع (شام كاش):</label>
         <select id="monetizationMode" onchange="saveSettings()">
+          <option value="free">نشر مجاني ترويجي (الكل مجاني - بدون دفع)</option>
           <option value="paid">نشر مدفوع (حسب نوع المنشور: عادي أو مميز)</option>
-          <option value="free">نشر مجاني ترويجي (الكل مجاني)</option>
         </select>
 
-        <label style="font-size:0.84rem; color:var(--muted); display:block;">رقم حساب شام كاش:</label>
-        <input type="text" id="shamCashId" placeholder="4832844257842450" onchange="saveSettings()" />
+        <div id="paidSettingsBox">
+          <label style="font-size:0.84rem; color:var(--muted); display:block;">رقم حساب شام كاش:</label>
+          <input type="text" id="shamCashId" placeholder="4832844257842450" onchange="saveSettings()" />
 
-        <div class="grid-2">
-          <div>
-            <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (USD):</label>
-            <input type="text" id="normalUsd" onchange="saveSettings()" />
+          <div class="grid-2">
+            <div>
+              <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (USD):</label>
+              <input type="text" id="normalUsd" onchange="saveSettings()" />
+            </div>
+            <div>
+              <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (ل.س):</label>
+              <input type="text" id="normalSyp" onchange="saveSettings()" />
+            </div>
           </div>
-          <div>
-            <label style="font-size:0.82rem; color:var(--muted);">منشور عادي (ل.س):</label>
-            <input type="text" id="normalSyp" onchange="saveSettings()" />
-          </div>
-        </div>
 
-        <div class="grid-2">
-          <div>
-            <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (USD):</label>
-            <input type="text" id="featuredUsd" onchange="saveSettings()" />
-          </div>
-          <div>
-            <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (ل.س):</label>
-            <input type="text" id="featuredSyp" onchange="saveSettings()" />
+          <div class="grid-2">
+            <div>
+              <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (USD):</label>
+              <input type="text" id="featuredUsd" onchange="saveSettings()" />
+            </div>
+            <div>
+              <label style="font-size:0.82rem; color:var(--muted);">منشور مميز (ل.س):</label>
+              <input type="text" id="featuredSyp" onchange="saveSettings()" />
+            </div>
           </div>
         </div>
       </div>
@@ -439,564 +471,10 @@
   <!-- صندوق إضافة إعلان جديد -->
   <section class="box">
     <h2>أضف إعلانك الآن (مباشر بدون تسجيل)</h2>
-    <div id="feeBanner" class="fee-notice"></div>
+    <div id="feeBanner" class="free-notice"></div>
 
     <div class="grid-2">
       <div>
         <label style="font-size:0.82rem; color:var(--muted); display:block; margin-bottom:2px;">نوع المنشور:</label>
         <select id="newPostType" onchange="updateFeeBanner()">
-          <option value="normal">عادي (1 USD أو 15,000 ل.س)</option>
-          <option value="featured">مميز ⭐ (3 USD أو 45,000 ل.س)</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.82rem; color:var(--muted); display:block; margin-bottom:2px;">عملة الرسوم / التسعير:</label>
-        <select id="newCurrency" onchange="updateFeeBanner()">
-          <option value="USD">دولار أمريكي (USD)</option>
-          <option value="SYP">ليرة سورية (ل.س)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <select id="newGov">
-        <option value="دمشق">دمشق</option>
-        <option value="ريف دمشق">ريف دمشق</option>
-        <option value="حلب">حلب</option>
-        <option value="حمص">حمص</option>
-        <option value="حماة">حماة</option>
-        <option value="اللاذقية">اللاذقية</option>
-        <option value="طرطوس">طرطوس</option>
-        <option value="إدلب">إدلب</option>
-        <option value="درعا">درعا</option>
-        <option value="السويداء">السويداء</option>
-        <option value="دير الزور">دير الزور</option>
-        <option value="الحسكة">الحسكة</option>
-        <option value="الرقة">الرقة</option>
-        <option value="القنيطرة">القنيطرة</option>
-      </select>
-      <select id="newCat">
-        <option value="عقارات">عقارات</option>
-        <option value="سيارات">سيارات</option>
-        <option value="معارض وتجارة">معارض وتجارة</option>
-        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
-        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
-      </select>
-    </div>
-
-    <input type="text" id="newTitle" placeholder="عنوان الإعلان (مثال: شقة للبيع في المزة / سيارة كيا ريو)" />
-    <textarea id="newDesc" placeholder="تفاصيل الإعلان والمواصفات كاملة..."></textarea>
-
-    <!-- موقع GPS -->
-    <div class="gps-row">
-      <input type="text" id="newLocation" placeholder="الموقع أو إحداثيات GPS (مثال: 33.5138, 36.2765 أو المزة)" />
-      <button type="button" class="btn-gps" onclick="detectGPS()">موقعي GPS 📍</button>
-    </div>
-    <input type="hidden" id="gpsCoords" />
-    <div id="gpsStatus" class="gps-status">يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.</div>
-
-    <div class="grid-2">
-      <input type="text" id="newPrice" placeholder="السعر المطلوب (مثال: 15,000 USD أو 250,000,000 ل.س)" />
-      <input type="tel" id="newWhatsapp" placeholder="رقم الواتساب (مثال: 9639xxxxxxxx)" />
-    </div>
-    <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق صورة من الجهاز:</label>
-    <input type="file" id="newImage" accept="image/*" />
-    <button class="btn btn-primary" onclick="submitPost()">إرسال الإعلان للمراجعة</button>
-  </section>
-
-  <!-- البحث والتصفية -->
-  <section class="box">
-    <h2>تصفح الإعلانات</h2>
-    <div class="grid-2" style="margin-bottom:0;">
-      <select id="filterGov" onchange="renderFeed()">
-        <option value="all">كل المحافظات</option>
-        <option value="دمشق">دمشق</option>
-        <option value="ريف دمشق">ريف دمشق</option>
-        <option value="حلب">حلب</option>
-        <option value="حمص">حمص</option>
-        <option value="حماة">حماة</option>
-        <option value="اللاذقية">اللاذقية</option>
-        <option value="طرطوس">طرطوس</option>
-        <option value="إدلب">إدلب</option>
-        <option value="درعا">درعا</option>
-        <option value="السويداء">السويداء</option>
-        <option value="دير الزور">دير الزور</option>
-        <option value="الحسكة">الحسكة</option>
-        <option value="الرقة">الرقة</option>
-        <option value="القنيطرة">القنيطرة</option>
-      </select>
-      <select id="filterCat" onchange="renderFeed()">
-        <option value="all">كل الأقسام</option>
-        <option value="عقارات">عقارات</option>
-        <option value="سيارات">سيارات</option>
-        <option value="معارض وتجارة">معارض وتجارة</option>
-        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
-        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
-      </select>
-    </div>
-  </section>
-
-  <!-- ساحة الإعلانات (Feed) -->
-  <div id="feedContainer"></div>
-
-</div>
-
-<script>
-  const DEFAULT_SETTINGS = {
-    mode: "paid",
-    shamCash: "4832844257842450",
-    normalUsd: "1 USD",
-    normalSyp: "15,000 ل.س",
-    featuredUsd: "3 USD",
-    featuredSyp: "45,000 ل.س"
-  };
-
-  let settings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem("sydeal_settings")) || {}) };
-  if (!settings.shamCash) settings.shamCash = "4832844257842450";
-
-  let posts = JSON.parse(localStorage.getItem("sydeal_posts")) || [
-    {
-      id: 101,
-      postType: "featured",
-      gov: "دمشق",
-      cat: "عقارات",
-      title: "شقة سكنية مميزة طابو أخضر 130 متر",
-      desc: "كسوة ممتازة، طابق ثاني مع مصعد، إطلالة جميلة وجاهزة للسكن الفوري.",
-      locationLabel: "دمشق - المزة",
-      coords: "33.5050,36.2450",
-      price: "55,000 USD",
-      whatsapp: "963900000000",
-      image: "",
-      approved: true,
-      comments: [
-        { author: "أبو خالد", text: "هل السعر قابل للتفاوض البسيط؟" }
-      ],
-      messages: [
-        { sender: "زائر", text: "مرحباً، هل الشقة متاحة للمعاينة غداً؟" },
-        { sender: "المعلن", text: "أهلاً بك، نعم متاحة من الساعة 2 ظهراً." }
-      ]
-    },
-    {
-      id: 102,
-      postType: "normal",
-      gov: "حلب",
-      cat: "سيارات",
-      title: "سيارة عائلية بحالة ممتازة",
-      desc: "أوتوماتيك، مكيف شغال، صيانة دورية وخالية من الأعطال.",
-      locationLabel: "حلب - الفرقان",
-      coords: "36.2021,37.1343",
-      price: "9,500 USD",
-      whatsapp: "963900000000",
-      image: "",
-      approved: true,
-      comments: [],
-      messages: []
-    }
-  ];
-
-  let isAdminLoggedIn = false;
-  let openShareId = null;
-  let openInteraction = {};
-
-  function savePosts() {
-    localStorage.setItem("sydeal_posts", JSON.stringify(posts));
-  }
-
-  function detectGPS() {
-    const statusEl = document.getElementById("gpsStatus");
-    const locInput = document.getElementById("newLocation");
-    const coordsInput = document.getElementById("gpsCoords");
-
-    if (!navigator.geolocation) {
-      statusEl.textContent = "المتصفح لا يدعم GPS، يمكنك كتابة الموقع يدوياً.";
-      return;
-    }
-
-    statusEl.textContent = "جاري تحديد موقعك عبر GPS...";
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
-        const pair = `${lat},${lng}`;
-        coordsInput.value = pair;
-        if (!locInput.value.trim()) {
-          locInput.value = `GPS: ${lat}, ${lng}`;
-        }
-        statusEl.textContent = `تم التقاط إحداثيات GPS بنجاح (${lat}, ${lng}).`;
-      },
-      () => {
-        statusEl.textContent = "تعذر الوصول إلى GPS (تأكد من تفعيل الموقع في الهاتف أو اكتب العنوان يدوياً).";
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
-
-  function buildMapUrl(locationLabel, coords) {
-    if (coords && coords.trim()) {
-      return `https://www.google.com/maps?q=${encodeURIComponent(coords.trim())}`;
-    }
-    const coordMatch = (locationLabel || "").match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
-    if (coordMatch) {
-      return `https://www.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}`;
-    }
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationLabel || "سوريا")}`;
-  }
-
-  function getFeeText(postType, currency) {
-    if (settings.mode === "free") return "مجاني حالياً (عرض ترويجي)";
-    if (postType === "featured") {
-      return currency === "SYP" ? settings.featuredSyp : settings.featuredUsd;
-    }
-    return currency === "SYP" ? settings.normalSyp : settings.normalUsd;
-  }
-
-  function updateFeeBanner() {
-    const banner = document.getElementById("feeBanner");
-    const typeEl = document.getElementById("newPostType");
-    const currEl = document.getElementById("newCurrency");
-    const typeLabel = typeEl.value === "featured" ? "منشور مميز ⭐" : "منشور عادي";
-    const feeDisplay = getFeeText(typeEl.value, currEl.value);
-
-    if (settings.mode === "free") {
-      banner.innerHTML = `النشر المجاني مفعل حالياً لجميع الإعلانات (${typeLabel}).`;
-    } else {
-      banner.innerHTML = `
-        نوع الإعلان المختار: <b>${typeLabel}</b> — الرسوم: <b>${feeDisplay}</b><br/>
-        الدفع عبر <b>شام كاش</b> على الحساب: <b style="user-select:all;">${settings.shamCash}</b> ثم أرسل الإعلان للموافقة.
-      `;
-    }
-  }
-
-  function toggleAdmin() {
-    document.getElementById("adminPanel").classList.toggle("hidden");
-  }
-
-  function loginAdmin() {
-    const pass = document.getElementById("adminPassInput").value;
-    if (pass === "1993") {
-      isAdminLoggedIn = true;
-      document.getElementById("adminLoginBox").classList.add("hidden");
-      document.getElementById("adminControls").classList.remove("hidden");
-      document.getElementById("monetizationMode").value = settings.mode;
-      document.getElementById("shamCashId").value = settings.shamCash;
-      document.getElementById("normalUsd").value = settings.normalUsd;
-      document.getElementById("normalSyp").value = settings.normalSyp;
-      document.getElementById("featuredUsd").value = settings.featuredUsd;
-      document.getElementById("featuredSyp").value = settings.featuredSyp;
-      renderPending();
-      renderFeed();
-    } else {
-      alert("رمز الإدارة غير صحيح");
-    }
-  }
-
-  function saveSettings() {
-    settings.mode = document.getElementById("monetizationMode").value;
-    settings.shamCash = document.getElementById("shamCashId").value.trim() || "4832844257842450";
-    settings.normalUsd = document.getElementById("normalUsd").value.trim() || "1 USD";
-    settings.normalSyp = document.getElementById("normalSyp").value.trim() || "15,000 ل.س";
-    settings.featuredUsd = document.getElementById("featuredUsd").value.trim() || "3 USD";
-    settings.featuredSyp = document.getElementById("featuredSyp").value.trim() || "45,000 ل.س";
-    localStorage.setItem("sydeal_settings", JSON.stringify(settings));
-    updateFeeBanner();
-  }
-
-  function submitPost() {
-    const postType = document.getElementById("newPostType").value;
-    const currency = document.getElementById("newCurrency").value;
-    const gov = document.getElementById("newGov").value;
-    const cat = document.getElementById("newCat").value;
-    const title = document.getElementById("newTitle").value.trim();
-    const desc = document.getElementById("newDesc").value.trim();
-    const locationLabel = document.getElementById("newLocation").value.trim() || gov;
-    const coords = document.getElementById("gpsCoords").value.trim();
-    const rawPrice = document.getElementById("newPrice").value.trim();
-    const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^0-9]/g, "");
-    const fileInput = document.getElementById("newImage");
-
-    if (!title || !desc) {
-      alert("يرجى كتابة عنوان الإعلان وتفاصيله");
-      return;
-    }
-
-    const formattedPrice = rawPrice
-      ? (rawPrice.includes("USD") || rawPrice.includes("ل.س")
-          ? rawPrice
-          : `${rawPrice} ${currency === "SYP" ? "ل.س" : "USD"}`)
-      : "السعر عند التواصل";
-
-    const finalizeSave = (imgData) => {
-      const newPost = {
-        id: Date.now(),
-        postType,
-        gov,
-        cat,
-        title,
-        desc,
-        locationLabel,
-        coords,
-        price: formattedPrice,
-        whatsapp: whatsapp || "963900000000",
-        image: imgData || "",
-        approved: false,
-        comments: [],
-        messages: []
-      };
-      posts.unshift(newPost);
-      savePosts();
-
-      document.getElementById("newTitle").value = "";
-      document.getElementById("newDesc").value = "";
-      document.getElementById("newLocation").value = "";
-      document.getElementById("gpsCoords").value = "";
-      document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
-      document.getElementById("newPrice").value = "";
-      document.getElementById("newWhatsapp").value = "";
-      document.getElementById("newImage").value = "";
-
-      const feeInfo = getFeeText(postType, currency);
-      alert(
-        settings.mode === "paid"
-          ? `تم استلام إعلانك (${postType === "featured" ? "مميز" : "عادي"} - ${feeInfo}) عبر حساب شام كاش (${settings.shamCash}). سيظهر بعد موافقة الإدارة.`
-          : "تم إرسال إعلانك بنجاح! سيظهر في المنصة فور موافقة الإدارة."
-      );
-      if (isAdminLoggedIn) renderPending();
-    };
-
-    if (fileInput.files && fileInput.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (e) => finalizeSave(e.target.result);
-      reader.readAsDataURL(fileInput.files[0]);
-    } else {
-      finalizeSave("");
-    }
-  }
-
-  function approvePost(id) {
-    const post = posts.find(p => p.id === id);
-    if (post) post.approved = true;
-    savePosts();
-    renderPending();
-    renderFeed();
-  }
-
-  function deletePost(id) {
-    posts = posts.filter(p => p.id !== id);
-    savePosts();
-    renderPending();
-    renderFeed();
-  }
-
-  function renderPending() {
-    const pending = posts.filter(p => !p.approved);
-    document.getElementById("pendingCount").textContent = pending.length;
-    const container = document.getElementById("pendingList");
-    if (!pending.length) {
-      container.innerHTML = "<p style='font-size:0.85rem; color:var(--muted);'>لا توجد طلبات معلقة حالياً.</p>";
-      return;
-    }
-    container.innerHTML = pending.map(p => `
-      <div class="pending-item">
-        <strong>${p.title}</strong> [${p.postType === "featured" ? "مميز ⭐" : "عادي"}] (${p.gov} - ${p.cat})<br/>
-        <small>${p.desc}</small><br/>
-        <div style="margin-top:6px; display:flex; gap:6px;">
-          <button class="btn-success" onclick="approvePost(${p.id})">موافقة ونشر</button>
-          <button class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  function toggleShareMenu(id) {
-    openShareId = openShareId === id ? null : id;
-    renderFeed();
-  }
-
-  function nativeShare(title, price) {
-    const text = `${title} — السعر: ${price}\nعبر منصة الصفقة السورية: ${window.location.href}`;
-    if (navigator.share) {
-      navigator.share({ title, text, url: window.location.href }).catch(() => {});
-    } else {
-      copyShareLink(text);
-    }
-  }
-
-  function copyShareLink(text) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => alert("تم نسخ تفاصيل ورابط الإعلان!"));
-    } else {
-      alert("انسخ الرابط من شريط العنوان: " + window.location.href);
-    }
-  }
-
-  function togglePanel(postId, mode) {
-    openInteraction[postId] = openInteraction[postId] === mode ? null : mode;
-    renderFeed();
-  }
-
-  function addComment(postId) {
-    const nameInput = document.getElementById(`cName_${postId}`);
-    const textInput = document.getElementById(`cText_${postId}`);
-    const author = (nameInput.value || "زائر").trim();
-    const text = textInput.value.trim();
-    if (!text) return;
-
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-      post.comments = post.comments || [];
-      post.comments.push({ author, text });
-      savePosts();
-      openInteraction[postId] = "comments";
-      renderFeed();
-    }
-  }
-
-  function sendChatMessage(postId) {
-    const roleSelect = document.getElementById(`mRole_${postId}`);
-    const textInput = document.getElementById(`mText_${postId}`);
-    const sender = roleSelect ? roleSelect.value : "زائر";
-    const text = textInput.value.trim();
-    if (!text) return;
-
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-      post.messages = post.messages || [];
-      post.messages.push({ sender, text });
-      savePosts();
-      openInteraction[postId] = "chat";
-      renderFeed();
-    }
-  }
-
-  function renderFeed() {
-    const gov = document.getElementById("filterGov").value;
-    const cat = document.getElementById("filterCat").value;
-
-    const approvedPosts = posts
-      .filter(p =>
-        p.approved &&
-        (gov === "all" || p.gov === gov) &&
-        (cat === "all" || p.cat === cat)
-      )
-      .sort((a, b) => {
-        if (a.postType === "featured" && b.postType !== "featured") return -1;
-        if (a.postType !== "featured" && b.postType === "featured") return 1;
-        return b.id - a.id;
-      });
-
-    const container = document.getElementById("feedContainer");
-    if (!approvedPosts.length) {
-      container.innerHTML = `<div class="box"><p style="text-align:center; color:var(--muted);">لا توجد إعلانات في هذا القسم حالياً.</p></div>`;
-      return;
-    }
-
-    container.innerHTML = approvedPosts.map(p => {
-      const isFeatured = p.postType === "featured";
-      const comments = p.comments || [];
-      const messages = p.messages || [];
-      const activePanel = openInteraction[p.id] || null;
-      const locText = p.locationLabel || p.gov;
-      const mapUrl = buildMapUrl(locText, p.coords);
-      const encodedShareText = encodeURIComponent(`${p.title} - السعر: ${p.price} | الصفقة السورية`);
-      const encodedUrl = encodeURIComponent(window.location.href);
-      const plainShareText = `${p.title} — السعر: ${p.price} (${locText})\nعبر الصفقة السورية: ${window.location.href}`;
-
-      return `
-        <article class="post-card ${isFeatured ? "featured" : ""}">
-          <div class="post-header">
-            <div class="badges-group">
-              <span class="badge">${p.gov} • ${p.cat}</span>
-              ${isFeatured
-                ? `<span class="badge-featured">منشور مميز ⭐</span>`
-                : `<span class="badge-normal">منشور عادي</span>`}
-            </div>
-            ${isAdminLoggedIn ? `<button class="btn-danger" onclick="deletePost(${p.id})">حذف</button>` : ""}
-          </div>
-
-          <h3 class="post-title">${p.title}</h3>
-          <div class="post-desc">${p.desc}</div>
-
-          <div class="location-box">
-            <span>📍 الموقع: <b>${locText}</b></span>
-            <a class="map-link" href="${mapUrl}" target="_blank" rel="noopener">فتح الخريطة 🗺️</a>
-          </div>
-
-          ${p.image ? `<img src="${p.image}" class="post-img" alt="${p.title}" />` : ""}
-          <div class="post-price">${p.price}</div>
-
-          <div class="post-actions">
-            <a class="action-btn wa" href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('مرحباً، بخصوص إعلانك في الصفقة السورية: ' + p.title)}" target="_blank">واتساب</a>
-            <button class="action-btn" onclick="togglePanel(${p.id}, 'chat')">محادثة (${messages.length})</button>
-            <button class="action-btn" onclick="togglePanel(${p.id}, 'comments')">تعليقات (${comments.length})</button>
-            <button class="action-btn" onclick="toggleShareMenu(${p.id})">مشاركة</button>
-          </div>
-
-          ${openShareId === p.id ? `
-            <div class="share-bar">
-              <a class="share-chip" target="_blank" href="https://wa.me/?text=${encodedShareText}%20${encodedUrl}">واتساب</a>
-              <a class="share-chip" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}">فيسبوك</a>
-              <a class="share-chip" target="_blank" href="https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}">تيليغرام</a>
-              <button class="share-chip" onclick="copyShareLink(${JSON.stringify(plainShareText)})">نسخ النص والرابط</button>
-              <button class="share-chip" onclick="nativeShare(${JSON.stringify(p.title)}, ${JSON.stringify(p.price)})">مشاركة الجهاز</button>
-            </div>
-          ` : ""}
-
-          ${activePanel === "comments" ? `
-            <div class="interaction-panel">
-              <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">التعليقات على الإعلان:</strong>
-              ${comments.length
-                ? comments.map(c => `
-                    <div class="comment-item">
-                      <span class="comment-author">${c.author}</span>
-                      <span>${c.text}</span>
-                    </div>
-                  `).join("")
-                : `<div style="font-size:0.82rem; color:var(--muted); margin-bottom:6px;">لا توجد تعليقات بعد، كن أول من يعلق.</div>`
-              }
-              <input type="text" id="cName_${p.id}" placeholder="اسمك (اختياري)" style="margin-bottom:6px;" />
-              <div style="display:flex; gap:6px;">
-                <input type="text" id="cText_${p.id}" placeholder="اكتب تعليقك..." style="margin-bottom:0;" />
-                <button class="btn-success" onclick="addComment(${p.id})">إرسال</button>
-              </div>
-            </div>
-          ` : ""}
-
-          ${activePanel === "chat" ? `
-            <div class="interaction-panel">
-              <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">محادثة مباشرة حول الإعلان:</strong>
-              <div class="chat-box">
-                ${messages.length
-                  ? messages.map(m => `
-                      <div class="chat-msg ${m.sender === "المعلن" ? "seller" : ""}">
-                        <b>${m.sender}:</b> ${m.text}
-                      </div>
-                    `).join("")
-                  : `<div style="font-size:0.82rem; color:var(--muted);">ابدأ المحادثة مع المعلن الآن.</div>`
-                }
-              </div>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <select id="mRole_${p.id}" style="width:auto; margin-bottom:0; padding:8px;">
-                  <option value="زائر">زائر</option>
-                  <option value="المعلن">المعلن</option>
-                </select>
-                <input type="text" id="mText_${p.id}" placeholder="اكتب رسالتك..." style="margin-bottom:0;" />
-                <button class="btn-success" onclick="sendChatMessage(${p.id})">إرسال</button>
-              </div>
-            </div>
-          ` : ""}
-        </article>
-      `;
-    }).join("");
-  }
-
-  updateFeeBanner();
-  renderFeed();
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
-</script>
-</body>
-</html>
+          

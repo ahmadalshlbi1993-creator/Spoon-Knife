@@ -708,7 +708,11 @@
     try {
       const parsedPosts = JSON.parse(localStorage.getItem("sydeal_posts"));
       if (Array.isArray(parsedPosts) && parsedPosts.length > 0) {
-        posts = parsedPosts.map(row => row.description !== undefined || row.post_type !== undefined ? mapDbRowToPost(row) : row);
+        posts = parsedPosts.map(row =>
+          (row && (row.description !== undefined || row.post_type !== undefined))
+            ? mapDbRowToPost(row)
+            : row
+        );
       }
     } catch (e) {
       posts = DEFAULT_POSTS;
@@ -731,7 +735,7 @@
       try {
         localStorage.setItem("sydeal_posts", JSON.stringify(posts));
       } catch (e) {
-        alert("تنبيه: حجم الملف المرفق كبير على التخزين المحلي، وسيبقى مرفوعاً سحابياً بعد تفعيل المفتاح.");
+        alert("تنبيه: حجم الملف المرفق كبير على التخزين المحلي للمتصفح، لذا سيبقى ظاهر في هذه الجلسة حتى يتم ربط تخزين سحابي مشترك.");
       }
     }
 

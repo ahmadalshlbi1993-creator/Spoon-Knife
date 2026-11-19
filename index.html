@@ -1,20 +1,28 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="ar" dir="rtl">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>Spoon-Knife</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>الصفقة السورية</title>
+  <link rel="stylesheet" href="styles.css" type="text/css"/>
+  <link rel="manifest" href="./manifest.json"/>
 </head>
-
 <body>
 
-<img src="forkit.gif" id="octocat" alt="" />
+<img src="forkit.gif" id="octocat" alt="octocat"/>
 
-<!-- Feel free to change this text here -->
+<!-- يمكنك تغيير هذا النص هنا -->
 <p>
-  Fork me? Fork you, @octocat!
+  شوكة لي؟ شوكة لك يا @octocat!
 </p>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
 
 </body>
 </html>

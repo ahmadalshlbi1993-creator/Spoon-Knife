@@ -430,7 +430,7 @@
 
     <div id="adminControls" class="hidden">
       <div id="cloudStatusNote" class="info-note">
-        جاري التحقق من الربط السحابي بقاعدة البيانات وحاوية الوسائط...
+        جاري التحقق من الربط السحابي بقاعدة البيانات (<code>public.posts</code>) وحاوية التخزين (<code>media</code>)...
       </div>
 
       <div style="margin-bottom: 12px;">
@@ -586,579 +586,698 @@
 </div>
 
 <script>
-  const SUPABASE_URL = "https://hcwkgtpnymxvqoqopltc.supabase.co";
-  const SUPABASE_ANON_KEY = "الصق_مفتاح_Publishable_key_هنا";
-  const POSTS_TABLE = "posts";
-  const MEDIA_BUCKET = "media";
-  const ADMIN_CODE = "1993";
+  try {
+    const SUPABASE_URL = "https://hcwkgtpnymxvqoqopltc.supabase.co";
+    const SUPABASE_ANON_KEY = "الصق_مفتاح_Publishable_key_هنا";
+    const POSTS_TABLE = "posts";
+    const MEDIA_BUCKET = "media";
+    const ADMIN_CODE = "1993";
 
-  const sbClient = (window.supabase && window.supabase.createClient &&
-    SUPABASE_URL && SUPABASE_ANON_KEY &&
-    !SUPABASE_ANON_KEY.includes("الصق_مفتاح"))
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
+    const sbClient = (window.supabase && window.supabase.createClient &&
+      SUPABASE_URL && SUPABASE_ANON_KEY &&
+      !SUPABASE_ANON_KEY.includes("الصق_مفتاح"))
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
-  const DEFAULT_SETTINGS = {
-    mode: "free",
-    shamCash: "4832844257842450",
-    normalUsd: "1 USD",
-    normalSyp: "15,000 ل.س",
-    featuredUsd: "3 USD",
-    featuredSyp: "45,000 ل.س"
-  };
-
-  let settings = { ...DEFAULT_SETTINGS };
-  let posts = [];
-  let adminUnlocked = false;
-  const openPanels = {};
-
-  function escapeHtml(val) {
-    return String(val ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function mapDbRowToPost(row) {
-    return {
-      id: Number(row.id),
-      postType: row.post_type === "featured" ? "featured" : "normal",
-      gov: row.gov || "",
-      cat: row.cat || "",
-      title: row.title || "",
-      desc: row.description || "",
-      locationLabel: row.location_label || "",
-      coords: row.coords || "",
-      price: row.price || "",
-      whatsapp: row.whatsapp || "",
-      image: row.image_url || "",
-      video: row.video_url || "",
-      approved: Boolean(row.approved),
-      comments: Array.isArray(row.comments) ? row.comments : [],
-      messages: Array.isArray(row.messages) ? row.messages : [],
-      created_at: row.created_at || new Date().toISOString()
+    const DEFAULT_SETTINGS = {
+      mode: "free",
+      shamCash: "4832844257842450",
+      normalUsd: "1 USD",
+      normalSyp: "15,000 ل.س",
+      featuredUsd: "3 USD",
+      featuredSyp: "45,000 ل.س"
     };
-  }
 
-  function mapPostToDbRow(post) {
-    return {
-      id: Number(post.id),
-      post_type: post.postType === "featured" ? "featured" : "normal",
-      gov: post.gov,
-      cat: post.cat,
-      title: post.title,
-      description: post.desc,
-      location_label: post.locationLabel || "",
-      coords: post.coords || "",
-      price: post.price || "",
-      whatsapp: post.whatsapp || "",
-      image_url: post.image || "",
-      video_url: post.video || "",
-      approved: Boolean(post.approved),
-      comments: Array.isArray(post.comments) ? post.comments : [],
-      messages: Array.isArray(post.messages) ? post.messages : [],
-      created_at: post.created_at || new Date().toISOString()
-    };
-  }
-
-  function loadLocalData() {
-    try {
-      const savedSettings = localStorage.getItem("sydeal_settings_v1");
-      if (savedSettings) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
-    } catch (_) {}
-
-    try {
-      const savedPosts = localStorage.getItem("sydeal_posts_v1");
-      if (savedPosts) {
-        posts = JSON.parse(savedPosts).map(mapDbRowToPost);
-      }
-    } catch (_) {}
-  }
-
-  function saveLocalData() {
-    try {
-      localStorage.setItem("sydeal_settings_v1", JSON.stringify(settings));
-      localStorage.setItem("sydeal_posts_v1", JSON.stringify(posts.map(mapPostToDbRow)));
-    } catch (_) {}
-  }
-
-  async function syncFromCloud() {
-    const statusNote = document.getElementById("cloudStatusNote");
-    if (!sbClient) {
-      if (statusNote) {
-        statusNote.innerHTML = "الربط السحابي غير مفعّل بعد: ألصق مفتاح <strong>Publishable key</strong> داخل <code>SUPABASE_ANON_KEY</code> لمزامنة الإعلانات والصور والفيديو بين الأجهزة.";
-      }
-      renderFeed();
-      renderAdminPending();
-      return;
-    }
-
-    try {
-      const { data, error } = await sbClient
-        .from(POSTS_TABLE)
-        .select("*")
-        .order("id", { ascending: false });
-
-      if (error) throw error;
-
-      posts = Array.isArray(data) ? data.map(mapDbRowToPost) : [];
-      saveLocalData();
-      if (statusNote) {
-        statusNote.innerHTML = "متصل بالسحابة (<strong>Supabase</strong>): الإعلانات والصور والفيديو في حاوية <code>media</code> متزامنة بين الأجهزة.";
-      }
-    } catch (err) {
-      console.error("Cloud load error:", err);
-      if (statusNote) {
-        statusNote.innerHTML = "تعذر جلب البيانات من السحابة حالياً — يتم عرض النسخة المحلية المتاحة.";
-      }
-    }
-
-    renderFeed();
-    renderAdminPending();
-  }
-
-  function applySettingsToUI() {
-    document.getElementById("monetizationMode").value = settings.mode;
-    document.getElementById("shamCashId").value = settings.shamCash;
-    document.getElementById("normalUsd").value = settings.normalUsd;
-    document.getElementById("normalSyp").value = settings.normalSyp;
-    document.getElementById("featuredUsd").value = settings.featuredUsd;
-    document.getElementById("featuredSyp").value = settings.featuredSyp;
-    document.getElementById("paidSettingsBox").classList.toggle("hidden", settings.mode === "free");
-    updateFeeBanner();
-  }
-
-  function saveSettings() {
-    settings.mode = document.getElementById("monetizationMode").value;
-    settings.shamCash = document.getElementById("shamCashId").value.trim() || DEFAULT_SETTINGS.shamCash;
-    settings.normalUsd = document.getElementById("normalUsd").value.trim() || DEFAULT_SETTINGS.normalUsd;
-    settings.normalSyp = document.getElementById("normalSyp").value.trim() || DEFAULT_SETTINGS.normalSyp;
-    settings.featuredUsd = document.getElementById("featuredUsd").value.trim() || DEFAULT_SETTINGS.featuredUsd;
-    settings.featuredSyp = document.getElementById("featuredSyp").value.trim() || DEFAULT_SETTINGS.featuredSyp;
-    document.getElementById("paidSettingsBox").classList.toggle("hidden", settings.mode === "free");
-    saveLocalData();
-    updateFeeBanner();
-  }
-
-  function updateFeeBanner() {
-    const postType = document.getElementById("newPostType").value;
-    const currency = document.getElementById("newCurrency").value;
-    const banner = document.getElementById("feeBanner");
-
-    if (settings.mode === "free") {
-      banner.className = "free-notice";
-      banner.textContent = "النشر مجاني بالكامل حالياً لجميع الإعلانات (العادية والمميزة)، ويتم مراجعة الإعلان قبل اعتماده.";
-      return;
-    }
-
-    const feeText = postType === "featured"
-      ? (currency === "USD" ? settings.featuredUsd : settings.featuredSyp)
-      : (currency === "USD" ? settings.normalUsd : settings.normalSyp);
-
-    banner.className = "fee-notice";
-    banner.innerHTML = `رسوم نشر هذا الإعلان: <strong>${escapeHtml(feeText)}</strong> — يرجى التحويل عبر <strong>شام كاش</strong> إلى الحساب رقم: <strong>${escapeHtml(settings.shamCash)}</strong> ثم إرسال الإعلان للمراجعة.`;
-  }
-
-  function detectGPS() {
-    const statusEl = document.getElementById("gpsStatus");
-    const locInput = document.getElementById("newLocation");
-    const coordsInput = document.getElementById("gpsCoords");
-
-    if (!navigator.geolocation) {
-      statusEl.textContent = "المتصفح لا يدعم GPS؛ يمكنك كتابة الموقع يدوياً.";
-      return;
-    }
-
-    statusEl.textContent = "جاري تحديد موقعك عبر GPS...";
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
-        const pair = `${lat},${lng}`;
-        coordsInput.value = pair;
-        if (!locInput.value.trim()) {
-          locInput.value = `إحداثيات GPS (${lat}, ${lng})`;
-        }
-        statusEl.textContent = `تم تحديد الموقع بدقة: ${pair}`;
+    const DEFAULT_POSTS = [
+      {
+        id: 101,
+        postType: "featured",
+        gov: "دمشق",
+        cat: "عقارات",
+        title: "شقة سكنية مميزة طابو أخضر 130 متر",
+        desc: "كسوة ممتازة، طابق ثاني مع مصعد، إطلالة جميلة وجاهزة للسكن الفوري.",
+        locationLabel: "دمشق - المزة",
+        coords: "33.5050,36.2450",
+        price: "55,000 USD",
+        whatsapp: "963900000000",
+        image: "",
+        video: "",
+        approved: true,
+        comments: [
+          { author: "أبو خالد", text: "هل السعر قابل للتفاوض البسيط؟" }
+        ],
+        messages: [
+          { sender: "زائر", text: "مرحباً، هل الشقة متاحة للمعاينة غداً؟" },
+          { sender: "المعلن", text: "أهلاً بك، نعم متاحة من الساعة 2 ظهراً." }
+        ],
+        created_at: new Date().toISOString()
       },
-      () => {
-        statusEl.textContent = "تعذر الوصول إلى GPS؛ تأكد من تفعيل الموقع أو أدخل العنوان يدوياً.";
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
-
-  async function uploadMediaToCloud(file, folder) {
-    if (!file) return "";
-    if (!sbClient) {
-      return await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ""));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${cleanFileName}`;
-    const { error } = await sbClient.storage
-      .from(MEDIA_BUCKET)
-      .upload(filePath, file, { cacheControl: "3600", upsert: false });
-
-    if (error) throw error;
-
-    const { data } = sbClient.storage.from(MEDIA_BUCKET).getPublicUrl(filePath);
-    return data?.publicUrl || "";
-  }
-
-  async function submitPost() {
-    const submitBtn = document.getElementById("submitPostBtn");
-    const gov = document.getElementById("newGov").value;
-    const cat = document.getElementById("newCat").value;
-    const postType = document.getElementById("newPostType").value;
-    const title = document.getElementById("newTitle").value.trim();
-    const desc = document.getElementById("newDesc").value.trim();
-    const locationLabel = document.getElementById("newLocation").value.trim();
-    const coordsRaw = document.getElementById("gpsCoords").value.trim();
-    const coordMatch = (coordsRaw || locationLabel).match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
-    const coords = coordMatch ? `${coordMatch[1]},${coordMatch[2]}` : "";
-    const price = document.getElementById("newPrice").value.trim();
-    const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^\d+]/g, "");
-    const imgFile = document.getElementById("newImage").files[0] || null;
-    const vidFile = document.getElementById("newVideo").files[0] || null;
-
-    if (!title || !desc) {
-      alert("يرجى إدخال عنوان الإعلان وتفاصيله.");
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "جاري رفع الملفات وإرسال الإعلان...";
-
-    try {
-      const imageUrl = await uploadMediaToCloud(imgFile, "images");
-      const videoUrl = await uploadMediaToCloud(vidFile, "videos");
-
-      const newPost = {
-        id: Date.now(),
-        postType,
-        gov,
-        cat,
-        title,
-        desc,
-        locationLabel: locationLabel || gov,
-        coords,
-        price,
-        whatsapp,
-        image: imageUrl,
-        video: videoUrl,
-        approved: false,
+      {
+        id: 102,
+        postType: "normal",
+        gov: "حلب",
+        cat: "سيارات",
+        title: "سيارة عائلية بحالة ممتازة",
+        desc: "أوتوماتيك، مكيف شغال، صيانة دورية وخالية من الأعطال.",
+        locationLabel: "حلب - الفرقان",
+        coords: "36.2021,37.1343",
+        price: "9,500 USD",
+        whatsapp: "963900000000",
+        image: "",
+        video: "",
+        approved: true,
         comments: [],
         messages: [],
         created_at: new Date().toISOString()
+      }
+    ];
+
+    function mapDbRowToPost(row) {
+      return {
+        id: Number(row.id),
+        postType: row.post_type === "featured" ? "featured" : "normal",
+        gov: row.gov || "",
+        cat: row.cat || "",
+        title: row.title || "",
+        desc: row.description || "",
+        locationLabel: row.location_label || "",
+        coords: row.coords || "",
+        price: row.price || "",
+        whatsapp: row.whatsapp || "",
+        image: row.image_url || "",
+        video: row.video_url || "",
+        approved: Boolean(row.approved),
+        comments: Array.isArray(row.comments) ? row.comments : [],
+        messages: Array.isArray(row.messages) ? row.messages : [],
+        created_at: row.created_at || new Date().toISOString()
       };
+    }
+
+    function mapPostToDbRow(post) {
+      return {
+        id: Number(post.id),
+        post_type: post.postType === "featured" ? "featured" : "normal",
+        gov: post.gov,
+        cat: post.cat,
+        title: post.title,
+        description: post.desc,
+        location_label: post.locationLabel || "",
+        coords: post.coords || "",
+        price: post.price || "",
+        whatsapp: post.whatsapp || "",
+        image_url: post.image || "",
+        video_url: post.video || "",
+        approved: Boolean(post.approved),
+        comments: Array.isArray(post.comments) ? post.comments : [],
+        messages: Array.isArray(post.messages) ? post.messages : [],
+        created_at: post.created_at || new Date().toISOString()
+      };
+    }
+
+    let savedSettings = {};
+    try {
+      savedSettings = JSON.parse(localStorage.getItem("sydeal_settings")) || {};
+    } catch (e) {
+      savedSettings = {};
+    }
+
+    let settings = { ...DEFAULT_SETTINGS, ...savedSettings };
+    if (!settings.shamCash) settings.shamCash = "4832844257842450";
+
+    let posts = DEFAULT_POSTS;
+    try {
+      const parsedPosts = JSON.parse(localStorage.getItem("sydeal_posts"));
+      if (Array.isArray(parsedPosts) && parsedPosts.length > 0) {
+        posts = parsedPosts.map(row => row.description !== undefined || row.post_type !== undefined ? mapDbRowToPost(row) : row);
+      }
+    } catch (e) {
+      posts = DEFAULT_POSTS;
+    }
+
+    let isAdminLoggedIn = false;
+    let openShareId = null;
+    let openInteraction = {};
+
+    function escapeAttr(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function savePosts() {
+      try {
+        localStorage.setItem("sydeal_posts", JSON.stringify(posts));
+      } catch (e) {
+        alert("تنبيه: حجم الملف المرفق كبير على التخزين المحلي، وسيبقى مرفوعاً سحابياً بعد تفعيل المفتاح.");
+      }
+    }
+
+    async function syncFromCloud() {
+      const noteEl = document.getElementById("cloudStatusNote");
+      if (!sbClient) {
+        if (noteEl) {
+          noteEl.innerHTML = "وضع محلي حالياً: ألصق مفتاح <strong>Publishable key</strong> داخل <code>SUPABASE_ANON_KEY</code> لمزامنة الإعلانات والصور والفيديو في حاوية <code>media</code> بين الأجهزة.";
+        }
+        renderFeed();
+        if (isAdminLoggedIn) renderPending();
+        return;
+      }
+
+      try {
+        const { data, error } = await sbClient
+          .from(POSTS_TABLE)
+          .select("*")
+          .order("id", { ascending: false });
+
+        if (error) throw error;
+
+        if (Array.isArray(data) && data.length > 0) {
+          posts = data.map(mapDbRowToPost);
+          savePosts();
+        }
+        if (noteEl) {
+          noteEl.innerHTML = "متصل بالسحابة (<strong>Supabase</strong>): الإعلانات والصور والفيديو في حاوية <code>media</code> متزامنة بين الأجهزة.";
+        }
+      } catch (err) {
+        console.error("Cloud sync error:", err);
+        if (noteEl) {
+          noteEl.innerHTML = "تعذر المزامنة مع السحابة حالياً — يتم عرض البيانات المحلية المتوفرة.";
+        }
+      }
+
+      renderFeed();
+      if (isAdminLoggedIn) renderPending();
+    }
+
+    async function uploadMediaFile(file, folder) {
+      if (!file) return "";
+      if (!sbClient) {
+        try {
+          return URL.createObjectURL(file);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filePath = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safeName}`;
+      const { error } = await sbClient.storage
+        .from(MEDIA_BUCKET)
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
+
+      if (error) throw error;
+
+      const { data } = sbClient.storage.from(MEDIA_BUCKET).getPublicUrl(filePath);
+      return data?.publicUrl || "";
+    }
+
+    window.detectGPS = function() {
+      const statusEl = document.getElementById("gpsStatus");
+      const locInput = document.getElementById("newLocation");
+      const coordsInput = document.getElementById("gpsCoords");
+
+      if (!navigator.geolocation) {
+        statusEl.textContent = "المتصفح لا يدعم GPS، يمكنك كتابة الموقع يدوياً.";
+        return;
+      }
+
+      statusEl.textContent = "جاري تحديد موقعك عبر GPS...";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          const pair = `${lat},${lng}`;
+          coordsInput.value = pair;
+          if (!locInput.value.trim()) {
+            locInput.value = `GPS: ${lat}, ${lng}`;
+          }
+          statusEl.textContent = `تم التقاط إحداثيات GPS بنجاح (${lat}, ${lng}).`;
+        },
+        () => {
+          statusEl.textContent = "تعذر الوصول إلى GPS (تأكد من تفعيل الموقع في الهاتف أو اكتب العنوان يدوياً).";
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    };
+
+    function buildMapUrl(locationLabel, coords) {
+      if (coords && coords.trim()) {
+        return `https://www.google.com/maps?q=${encodeURIComponent(coords.trim())}`;
+      }
+      const coordMatch = (locationLabel || "").match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+      if (coordMatch) {
+        return `https://www.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}`;
+      }
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationLabel || "سوريا")}`;
+    }
+
+    function getFeeText(postType, currency) {
+      if (settings.mode === "free") return "مجاني (0)";
+      if (postType === "featured") {
+        return currency === "SYP" ? settings.featuredSyp : settings.featuredUsd;
+      }
+      return currency === "SYP" ? settings.normalSyp : settings.normalUsd;
+    }
+
+    function syncPaidSettingsVisibility() {
+      const paidBox = document.getElementById("paidSettingsBox");
+      if (!paidBox) return;
+      if (settings.mode === "free") {
+        paidBox.classList.add("hidden");
+      } else {
+        paidBox.classList.remove("hidden");
+      }
+    }
+
+    window.updateFeeBanner = function() {
+      const banner = document.getElementById("feeBanner");
+      const typeEl = document.getElementById("newPostType");
+      const currEl = document.getElementById("newCurrency");
+      const typeLabel = typeEl && typeEl.value === "featured" ? "منشور مميز ⭐" : "منشور عادي";
+
+      syncPaidSettingsVisibility();
+
+      if (settings.mode === "free") {
+        banner.className = "free-notice";
+        banner.innerHTML = `✅ النشر المجاني مفعل حالياً — يمكنك إرسال إعلانك (${typeLabel}) مجاناً دون أي تحويل عبر شام كاش.`;
+        return;
+      }
+
+      const feeDisplay = getFeeText(typeEl ? typeEl.value : "normal", currEl ? currEl.value : "USD");
+      banner.className = "fee-notice";
+      banner.innerHTML = `
+        نوع الإعلان المختار: <b>${typeLabel}</b> — الرسوم: <b>${feeDisplay}</b><br/>
+        الدفع عبر <b>شام كاش</b> على الحساب: <b style="user-select:all;">${escapeAttr(settings.shamCash)}</b> ثم أرسل الإعلان للموافقة.
+      `;
+    };
+
+    window.toggleAdmin = function() {
+      document.getElementById("adminPanel").classList.toggle("hidden");
+    };
+
+    window.loginAdmin = function() {
+      const pass = document.getElementById("adminPassInput").value;
+      if (pass === ADMIN_CODE) {
+        isAdminLoggedIn = true;
+        document.getElementById("adminLoginBox").classList.add("hidden");
+        document.getElementById("adminControls").classList.remove("hidden");
+        document.getElementById("monetizationMode").value = settings.mode;
+        document.getElementById("shamCashId").value = settings.shamCash;
+        document.getElementById("normalUsd").value = settings.normalUsd;
+        document.getElementById("normalSyp").value = settings.normalSyp;
+        document.getElementById("featuredUsd").value = settings.featuredUsd;
+        document.getElementById("featuredSyp").value = settings.featuredSyp;
+        syncPaidSettingsVisibility();
+        syncFromCloud();
+      } else {
+        alert("رمز الإدارة غير صحيح");
+      }
+    };
+
+    window.saveSettings = function() {
+      settings.mode = document.getElementById("monetizationMode").value;
+      settings.shamCash = document.getElementById("shamCashId").value.trim() || "4832844257842450";
+      settings.normalUsd = document.getElementById("normalUsd").value.trim() || "1 USD";
+      settings.normalSyp = document.getElementById("normalSyp").value.trim() || "15,000 ل.س";
+      settings.featuredUsd = document.getElementById("featuredUsd").value.trim() || "3 USD";
+      settings.featuredSyp = document.getElementById("featuredSyp").value.trim() || "45,000 ل.س";
+      try {
+        localStorage.setItem("sydeal_settings", JSON.stringify(settings));
+      } catch (e) {}
+      window.updateFeeBanner();
+    };
+
+    window.submitPost = async function() {
+      const submitBtn = document.getElementById("submitPostBtn");
+      const postType = document.getElementById("newPostType").value;
+      const currency = document.getElementById("newCurrency").value;
+      const gov = document.getElementById("newGov").value;
+      const cat = document.getElementById("newCat").value;
+      const title = document.getElementById("newTitle").value.trim();
+      const desc = document.getElementById("newDesc").value.trim();
+      const locationLabel = document.getElementById("newLocation").value.trim() || gov;
+      const coords = document.getElementById("gpsCoords").value.trim();
+      const rawPrice = document.getElementById("newPrice").value.trim();
+      const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^0-9]/g, "");
+      const imgFile = document.getElementById("newImage").files[0];
+      const vidFile = document.getElementById("newVideo").files[0];
+
+      if (!title || !desc) {
+        alert("يرجى كتابة عنوان الإعلان وتفاصيله");
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "جاري رفع الملفات وإرسال الإعلان...";
+      }
+
+      try {
+        const formattedPrice = rawPrice
+          ? (rawPrice.includes("USD") || rawPrice.includes("ل.س")
+              ? rawPrice
+              : `${rawPrice} ${currency === "SYP" ? "ل.س" : "USD"}`)
+          : "السعر عند التواصل";
+
+        const imageUrl = await uploadMediaFile(imgFile, "images");
+        const videoUrl = await uploadMediaFile(vidFile, "videos");
+
+        const newPost = {
+          id: Date.now(),
+          postType,
+          gov,
+          cat,
+          title,
+          desc,
+          locationLabel,
+          coords,
+          price: formattedPrice,
+          whatsapp: whatsapp || "963900000000",
+          image: imageUrl || "",
+          video: videoUrl || "",
+          hasVideoFile: Boolean(vidFile),
+          approved: false,
+          comments: [],
+          messages: [],
+          created_at: new Date().toISOString()
+        };
+
+        if (sbClient) {
+          const { error } = await sbClient.from(POSTS_TABLE).insert([mapPostToDbRow(newPost)]);
+          if (error) throw error;
+          await syncFromCloud();
+        } else {
+          posts.unshift(newPost);
+          savePosts();
+          renderFeed();
+          if (isAdminLoggedIn) renderPending();
+        }
+
+        document.getElementById("newTitle").value = "";
+        document.getElementById("newDesc").value = "";
+        document.getElementById("newLocation").value = "";
+        document.getElementById("gpsCoords").value = "";
+        document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
+        document.getElementById("newPrice").value = "";
+        document.getElementById("newWhatsapp").value = "";
+        document.getElementById("newImage").value = "";
+        document.getElementById("newVideo").value = "";
+
+        if (settings.mode === "free") {
+          alert("تم إرسال إعلانك المجاني بنجاح! سيظهر في المنصة فور موافقة الإدارة.");
+        } else {
+          const feeInfo = getFeeText(postType, currency);
+          alert(`تم استلام إعلانك (${postType === "featured" ? "مميز" : "عادي"} - ${feeInfo}) عبر حساب شام كاش (${settings.shamCash}). سيظهر بعد موافقة الإدارة.`);
+        }
+      } catch (err) {
+        console.error("Submit post error:", err);
+        alert("تعذر إرسال الإعلان أو رفع الملفات إلى السحابة، تحقق من الاتصال وإعدادات Supabase.");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "إرسال الإعلان للمراجعة";
+        }
+      }
+    };
+
+    window.approvePost = async function(id) {
+      const post = posts.find(p => Number(p.id) === Number(id));
+      if (!post) return;
+      post.approved = true;
+      savePosts();
 
       if (sbClient) {
-        const { error } = await sbClient.from(POSTS_TABLE).insert([mapPostToDbRow(newPost)]);
-        if (error) throw error;
+        const { error } = await sbClient
+          .from(POSTS_TABLE)
+          .update({ approved: true })
+          .eq("id", post.id);
+        if (error) {
+          console.error(error);
+          alert("تعذر تحديث حالة الاعتماد في قاعدة البيانات.");
+          return;
+        }
         await syncFromCloud();
       } else {
-        posts.unshift(newPost);
-        saveLocalData();
+        renderPending();
         renderFeed();
-        renderAdminPending();
       }
+    };
 
-      document.getElementById("newTitle").value = "";
-      document.getElementById("newDesc").value = "";
-      document.getElementById("newLocation").value = "";
-      document.getElementById("gpsCoords").value = "";
-      document.getElementById("newPrice").value = "";
-      document.getElementById("newWhatsapp").value = "";
-      document.getElementById("newImage").value = "";
-      document.getElementById("newVideo").value = "";
-      document.getElementById("gpsStatus").textContent = "يمكنك تحديد موقعك عبر GPS تلقائياً أو كتابة الحي/العنوان يدوياً.";
+    window.deletePost = async function(id) {
+      posts = posts.filter(p => Number(p.id) !== Number(id));
+      savePosts();
 
-      alert("تم إرسال إعلانك بنجاح وهو الآن بانتظار موافقة الإدارة في مركز التحكم.");
-    } catch (err) {
-      console.error("Submit post error:", err);
-      alert("حدث خطأ أثناء رفع الملفات أو إرسال الإعلان. تحقق من إعدادات Supabase وسياسات التخزين.");
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "إرسال الإعلان للمراجعة";
-    }
-  }
+      if (sbClient) {
+        const { error } = await sbClient
+          .from(POSTS_TABLE)
+          .delete()
+          .eq("id", id);
+        if (error) {
+          console.error(error);
+          alert("تعذر حذف الإعلان من قاعدة البيانات.");
+          return;
+        }
+        await syncFromCloud();
+      } else {
+        renderPending();
+        renderFeed();
+      }
+    };
 
-  function toggleAdmin() {
-    const panel = document.getElementById("adminPanel");
-    panel.classList.toggle("hidden");
-    if (!panel.classList.contains("hidden") && adminUnlocked) {
-      renderAdminPending();
-    }
-  }
-
-  function loginAdmin() {
-    const pass = document.getElementById("adminPassInput").value.trim();
-    if (pass === ADMIN_CODE) {
-      adminUnlocked = true;
-      document.getElementById("adminLoginBox").classList.add("hidden");
-      document.getElementById("adminControls").classList.remove("hidden");
-      applySettingsToUI();
-      syncFromCloud();
-    } else {
-      alert("رمز الإدارة غير صحيح.");
-    }
-  }
-
-  function renderAdminPending() {
-    if (!adminUnlocked) return;
-    const pending = posts.filter((p) => !p.approved);
-    document.getElementById("pendingCount").textContent = pending.length;
-    const listEl = document.getElementById("pendingList");
-
-    if (!pending.length) {
-      listEl.innerHTML = `<div class="info-note">لا توجد طلبات نشر بانتظار الموافقة حالياً.</div>`;
-      return;
-    }
-
-    listEl.innerHTML = pending.map((p) => `
-      <div class="pending-item">
-        <div style="font-weight:700; margin-bottom:4px;">
-          ${escapeHtml(p.title)}
-          <span class="badge" style="margin-right:6px;">${escapeHtml(p.gov)} • ${escapeHtml(p.cat)}</span>
-        </div>
-        <div style="font-size:0.86rem; color:#374151; margin-bottom:6px; white-space:pre-line;">${escapeHtml(p.desc)}</div>
-        ${p.price ? `<div style="font-size:0.84rem; font-weight:700; color:var(--primary); margin-bottom:6px;">السعر: ${escapeHtml(p.price)}</div>` : ""}
-        ${p.image ? `<div style="margin-bottom:6px;"><a href="${escapeHtml(p.image)}" target="_blank" rel="noopener">معاينة الصورة ↗</a></div>` : ""}
-        ${p.video ? `<div style="margin-bottom:6px;"><a href="${escapeHtml(p.video)}" target="_blank" rel="noopener">معاينة الفيديو ↗</a></div>` : ""}
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button type="button" class="btn-success" onclick="approvePost(${p.id})">اعتماد ونشر</button>
-          <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف الطلب</button>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  async function approvePost(id) {
-    const target = posts.find((p) => Number(p.id) === Number(id));
-    if (!target) return;
-    target.approved = true;
-    saveLocalData();
-
-    if (sbClient) {
-      const { error } = await sbClient
-        .from(POSTS_TABLE)
-        .update({ approved: true })
-        .eq("id", target.id);
-      if (error) {
-        console.error(error);
-        alert("تعذر اعتماد الإعلان في قاعدة البيانات.");
+    function renderPending() {
+      const pending = posts.filter(p => !p.approved);
+      document.getElementById("pendingCount").textContent = pending.length;
+      const container = document.getElementById("pendingList");
+      if (!pending.length) {
+        container.innerHTML = "<p style='font-size:0.85rem; color:var(--muted);'>لا توجد طلبات معلقة حالياً.</p>";
         return;
       }
-      await syncFromCloud();
-    } else {
-      renderFeed();
-      renderAdminPending();
-    }
-  }
-
-  async function deletePost(id) {
-    posts = posts.filter((p) => Number(p.id) !== Number(id));
-    saveLocalData();
-
-    if (sbClient) {
-      const { error } = await sbClient
-        .from(POSTS_TABLE)
-        .delete()
-        .eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("تعذر حذف الإعلان من قاعدة البيانات.");
-        return;
-      }
-      await syncFromCloud();
-    } else {
-      renderFeed();
-      renderAdminPending();
-    }
-  }
-
-  function togglePanel(postId, type) {
-    const key = `${postId}_${type}`;
-    openPanels[key] = !openPanels[key];
-    renderFeed();
-  }
-
-  async function addComment(postId) {
-    const authorInput = document.getElementById(`cAuthor_${postId}`);
-    const textInput = document.getElementById(`cText_${postId}`);
-    const text = (textInput?.value || "").trim();
-    if (!text) return;
-
-    const post = posts.find((p) => Number(p.id) === Number(postId));
-    if (!post) return;
-
-    post.comments = Array.isArray(post.comments) ? post.comments : [];
-    post.comments.push({
-      author: (authorInput?.value || "").trim() || "زائر",
-      text
-    });
-
-    openPanels[`${postId}_comments`] = true;
-    saveLocalData();
-    if (sbClient) {
-      await sbClient.from(POSTS_TABLE).update({ comments: post.comments }).eq("id", post.id);
-    }
-    renderFeed();
-  }
-
-  async function sendMessage(postId) {
-    const input = document.getElementById(`mText_${postId}`);
-    const text = (input?.value || "").trim();
-    if (!text) return;
-
-    const post = posts.find((p) => Number(p.id) === Number(postId));
-    if (!post) return;
-
-    post.messages = Array.isArray(post.messages) ? post.messages : [];
-    post.messages.push({
-      sender: "مشتري",
-      text
-    });
-
-    openPanels[`${postId}_chat`] = true;
-    saveLocalData();
-    if (sbClient) {
-      await sbClient.from(POSTS_TABLE).update({ messages: post.messages }).eq("id", post.id);
-    }
-    renderFeed();
-  }
-
-  function copyShareLink(post) {
-    const text = `${post.title} - ${post.gov} (${post.cat})${post.price ? " | السعر: " + post.price : ""}\n${window.location.href}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => alert("تم نسخ تفاصيل ورابط الإعلان.")).catch(() => {});
-    }
-  }
-
-  function renderFeed() {
-    const govFilter = document.getElementById("filterGov").value;
-    const catFilter = document.getElementById("filterCat").value;
-    const container = document.getElementById("feedContainer");
-
-    const approvedPosts = posts
-      .filter((p) => p.approved)
-      .filter((p) => govFilter === "all" || p.gov === govFilter)
-      .filter((p) => catFilter === "all" || p.cat === catFilter)
-      .sort((a, b) => {
-        if (a.postType === "featured" && b.postType !== "featured") return -1;
-        if (b.postType === "featured" && a.postType !== "featured") return 1;
-        return Number(b.id) - Number(a.id);
-      });
-
-    if (!approvedPosts.length) {
-      container.innerHTML = `<div class="box" style="text-align:center; color:var(--muted);">لا توجد إعلانات معتمدة ضمن هذه الفلاتر حالياً.</div>`;
-      return;
-    }
-
-    container.innerHTML = approvedPosts.map((p) => {
-      const cleanWa = (p.whatsapp || "").replace(/[^\d]/g, "");
-      const waMsg = encodeURIComponent(`مرحباً، بخصوص إعلانك على الصفقة السورية: ${p.title}`);
-      const shareText = encodeURIComponent(`${p.title} - ${p.gov} (${p.cat})\n${p.price ? "السعر: " + p.price + "\n" : ""}${window.location.href}`);
-      const mapUrl = p.coords
-        ? `https://www.google.com/maps?q=${encodeURIComponent(p.coords)}`
-        : (p.locationLabel ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.locationLabel)}` : "");
-
-      const commentsOpen = Boolean(openPanels[`${p.id}_comments`]);
-      const chatOpen = Boolean(openPanels[`${p.id}_chat`]);
-      const shareOpen = Boolean(openPanels[`${p.id}_share`]);
-
-      return `
-        <article class="post-card ${p.postType === "featured" ? "featured" : ""}">
-          <div class="post-header">
-            <div class="badges-group">
-              <span class="badge">${escapeHtml(p.gov)}</span>
-              <span class="badge">${escapeHtml(p.cat)}</span>
-            </div>
-            <span class="${p.postType === "featured" ? "badge-featured" : "badge-normal"}">
-              ${p.postType === "featured" ? "مميز ⭐" : "عادي"}
-            </span>
+      container.innerHTML = pending.map(p => `
+        <div class="pending-item">
+          <strong>${escapeAttr(p.title)}</strong> [${p.postType === "featured" ? "مميز ⭐" : "عادي"}] (${escapeAttr(p.gov)} - ${escapeAttr(p.cat)})<br/>
+          <small>${escapeAttr(p.desc)}</small><br/>
+          ${p.image ? `<img src="${escapeAttr(p.image)}" class="post-img" alt="${escapeAttr(p.title)}" style="margin-top:6px; max-height:180px;" />` : ""}
+          ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline style="margin-top:6px; max-height:180px;"></video>` : ""}
+          <div style="margin-top:6px; display:flex; gap:6px;">
+            <button type="button" class="btn-success" onclick="approvePost(${p.id})">موافقة ونشر</button>
+            <button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>
           </div>
+        </div>
+      `).join("");
+    }
 
-          <h3 class="post-title">${escapeHtml(p.title)}</h3>
-          <div class="post-desc">${escapeHtml(p.desc)}</div>
+    window.toggleShareMenu = function(id) {
+      openShareId = openShareId === id ? null : id;
+      renderFeed();
+    };
 
-          ${(p.locationLabel || p.coords) ? `
+    window.nativeShareById = function(id) {
+      const p = posts.find(item => Number(item.id) === Number(id));
+      if (!p) return;
+      const text = `${p.title} — السعر: ${p.price}\nعبر منصة الصفقة السورية: ${window.location.href}`;
+      if (navigator.share) {
+        navigator.share({ title: p.title, text, url: window.location.href }).catch(() => {});
+      } else {
+        copyShareById(id);
+      }
+    };
+
+    window.copyShareById = function(id) {
+      const p = posts.find(item => Number(item.id) === Number(id));
+      const locText = p ? (p.locationLabel || p.gov) : "";
+      const text = p
+        ? `${p.title} — السعر: ${p.price} (${locText})\nعبر الصفقة السورية: ${window.location.href}`
+        : window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => alert("تم نسخ تفاصيل ورابط الإعلان!"));
+      } else {
+        alert("انسخ الرابط من شريط العنوان: " + window.location.href);
+      }
+    };
+
+    window.togglePanel = function(postId, mode) {
+      openInteraction[postId] = openInteraction[postId] === mode ? null : mode;
+      renderFeed();
+    };
+
+    window.addComment = async function(postId) {
+      const nameInput = document.getElementById(`cName_${postId}`);
+      const textInput = document.getElementById(`cText_${postId}`);
+      const author = (nameInput.value || "زائر").trim();
+      const text = textInput.value.trim();
+      if (!text) return;
+
+      const post = posts.find(p => Number(p.id) === Number(postId));
+      if (post) {
+        post.comments = post.comments || [];
+        post.comments.push({ author, text });
+        openInteraction[postId] = "comments";
+        savePosts();
+        if (sbClient) {
+          await sbClient.from(POSTS_TABLE).update({ comments: post.comments }).eq("id", post.id);
+        }
+        renderFeed();
+      }
+    };
+
+    window.sendChatMessage = async function(postId) {
+      const roleSelect = document.getElementById(`mRole_${postId}`);
+      const textInput = document.getElementById(`mText_${postId}`);
+      const sender = roleSelect ? roleSelect.value : "زائر";
+      const text = textInput.value.trim();
+      if (!text) return;
+
+      const post = posts.find(p => Number(p.id) === Number(postId));
+      if (post) {
+        post.messages = post.messages || [];
+        post.messages.push({ sender, text });
+        openInteraction[postId] = "chat";
+        savePosts();
+        if (sbClient) {
+          await sbClient.from(POSTS_TABLE).update({ messages: post.messages }).eq("id", post.id);
+        }
+        renderFeed();
+      }
+    };
+
+    function renderFeed() {
+      const govEl = document.getElementById("filterGov");
+      const catEl = document.getElementById("filterCat");
+      const gov = govEl ? govEl.value : "all";
+      const cat = catEl ? catEl.value : "all";
+
+      const approvedPosts = posts
+        .filter(p =>
+          p &&
+          p.approved &&
+          (gov === "all" || p.gov === gov) &&
+          (cat === "all" || p.cat === cat)
+        )
+        .sort((a, b) => {
+          if (a.postType === "featured" && b.postType !== "featured") return -1;
+          if (a.postType !== "featured" && b.postType === "featured") return 1;
+          return (b.id || 0) - (a.id || 0);
+        });
+
+      const container = document.getElementById("feedContainer");
+      if (!approvedPosts.length) {
+        container.innerHTML = `<div class="box"><p style="text-align:center; color:var(--muted);">لا توجد إعلانات في هذا القسم حالياً.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = approvedPosts.map(p => {
+        const isFeatured = p.postType === "featured";
+        const comments = Array.isArray(p.comments) ? p.comments : [];
+        const messages = Array.isArray(p.messages) ? p.messages : [];
+        const activePanel = openInteraction[p.id] || null;
+        const locText = p.locationLabel || p.gov;
+        const mapUrl = buildMapUrl(locText, p.coords);
+        const encodedShareText = encodeURIComponent(`${p.title} - السعر: ${p.price} | الصفقة السورية`);
+        const encodedUrl = encodeURIComponent(window.location.href);
+
+        return `
+          <article class="post-card ${isFeatured ? "featured" : ""}">
+            <div class="post-header">
+              <div class="badges-group">
+                <span class="badge">${escapeAttr(p.gov)} • ${escapeAttr(p.cat)}</span>
+                ${isFeatured
+                  ? `<span class="badge-featured">منشور مميز ⭐</span>`
+                  : `<span class="badge-normal">منشور عادي</span>`}
+              </div>
+              ${isAdminLoggedIn ? `<button type="button" class="btn-danger" onclick="deletePost(${p.id})">حذف</button>` : ""}
+            </div>
+
+            <h3 class="post-title">${escapeAttr(p.title)}</h3>
+            <div class="post-desc">${escapeAttr(p.desc)}</div>
+
             <div class="location-box">
-              <span>📍 ${escapeHtml(p.locationLabel || p.coords)}</span>
-              ${mapUrl ? `<a class="map-link" href="${mapUrl}" target="_blank" rel="noopener">فتح الخريطة 🗺️</a>` : ""}
+              <span>📍 الموقع: <b>${escapeAttr(locText)}</b></span>
+              <a class="map-link" href="${escapeAttr(mapUrl)}" target="_blank" rel="noopener">فتح الخريطة 🗺️</a>
             </div>
-          ` : ""}
 
-          ${p.image ? `<img class="post-img" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : ""}
-          ${p.video ? `<video class="post-video" src="${escapeHtml(p.video)}" controls playsinline preload="metadata"></video>` : ""}
+            ${p.image ? `<img src="${escapeAttr(p.image)}" class="post-img" alt="${escapeAttr(p.title)}" />` : ""}
+            ${p.video ? `<video src="${escapeAttr(p.video)}" class="post-video" controls playsinline preload="metadata"></video>` : ""}
+            <div class="post-price">${escapeAttr(p.price)}</div>
 
-          ${p.price ? `<div class="post-price">${escapeHtml(p.price)}</div>` : ""}
-
-          <div class="post-actions">
-            ${cleanWa ? `<a class="action-btn wa" href="https://wa.me/${cleanWa}?text=${waMsg}" target="_blank" rel="noopener">واتساب 💬</a>` : ""}
-            <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'comments')">تعليقات (${(p.comments || []).length})</button>
-            <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'chat')">مراسلة (${(p.messages || []).length})</button>
-            <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'share')">مشاركة ↗</button>
-          </div>
-
-          ${shareOpen ? `
-            <div class="share-bar">
-              <a class="share-chip" href="https://wa.me/?text=${shareText}" target="_blank" rel="noopener">واتساب</a>
-              <a class="share-chip" href="https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(p.title)}" target="_blank" rel="noopener">تيليجرام</a>
-              <button type="button" class="share-chip" onclick='copyShareLink(${JSON.stringify({ title: p.title, gov: p.gov, cat: p.cat, price: p.price })})'>نسخ التفاصيل</button>
+            <div class="post-actions">
+              <a class="action-btn wa" href="https://wa.me/${escapeAttr(p.whatsapp)}?text=${encodeURIComponent('مرحباً، بخصوص إعلانك في الصفقة السورية: ' + p.title)}" target="_blank" rel="noopener">واتساب</a>
+              <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'chat')">محادثة (${messages.length})</button>
+              <button type="button" class="action-btn" onclick="togglePanel(${p.id}, 'comments')">تعليقات (${comments.length})</button>
+              <button type="button" class="action-btn" onclick="toggleShareMenu(${p.id})">مشاركة</button>
             </div>
-          ` : ""}
 
-          ${commentsOpen ? `
-            <div class="interaction-panel">
-              ${(p.comments || []).map((c) => `
-                <div class="comment-item">
-                  <span class="comment-author">${escapeHtml(c.author || "زائر")}</span>
-                  <span>${escapeHtml(c.text)}</span>
+            ${openShareId === p.id ? `
+              <div class="share-bar">
+                <a class="share-chip" target="_blank" rel="noopener" href="https://wa.me/?text=${encodedShareText}%20${encodedUrl}">واتساب</a>
+                <a class="share-chip" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}">فيسبوك</a>
+                <a class="share-chip" target="_blank" rel="noopener" href="https://t.me/share/url?url=${encodedUrl}&text=${encodedShareText}">تيليغرام</a>
+                <button type="button" class="share-chip" onclick="copyShareById(${p.id})">نسخ النص والرابط</button>
+                <button type="button" class="share-chip" onclick="nativeShareById(${p.id})">مشاركة الجهاز</button>
+              </div>
+            ` : ""}
+
+            ${activePanel === "comments" ? `
+              <div class="interaction-panel">
+                <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">التعليقات على الإعلان:</strong>
+                ${comments.length
+                  ? comments.map(c => `
+                      <div class="comment-item">
+                        <span class="comment-author">${escapeAttr(c.author)}</span>
+                        <span>${escapeAttr(c.text)}</span>
+                      </div>
+                    `).join("")
+                  : `<div style="font-size:0.82rem; color:var(--muted); margin-bottom:6px;">لا توجد تعليقات بعد، كن أول من يعلق.</div>`
+                }
+                <input type="text" id="cName_${p.id}" placeholder="اسمك (اختياري)" style="margin-bottom:6px;" />
+                <div style="display:flex; gap:6px;">
+                  <input type="text" id="cText_${p.id}" placeholder="اكتب تعليقك..." style="margin-bottom:0;" />
+                  <button type="button" class="btn-success" onclick="addComment(${p.id})">إرسال</button>
                 </div>
-              `).join("") || `<div style="font-size:0.84rem; color:var(--muted); margin-bottom:8px;">لا توجد تعليقات بعد.</div>`}
-              <input type="text" id="cAuthor_${p.id}" placeholder="اسمك (اختياري)" />
-              <div style="display:flex; gap:6px;">
-                <input type="text" id="cText_${p.id}" placeholder="اكتب تعليقك..." style="margin-bottom:0;" />
-                <button type="button" class="btn-success" onclick="addComment(${p.id})">إرسال</button>
               </div>
-            </div>
-          ` : ""}
+            ` : ""}
 
-          ${chatOpen ? `
-            <div class="interaction-panel">
-              <div class="chat-box">
-                ${(p.messages || []).map((m) => `
-                  <div class="chat-msg ${m.sender === "بائع" ? "seller" : ""}">
-                    <strong>${escapeHtml(m.sender || "مشتري")}:</strong> ${escapeHtml(m.text)}
-                  </div>
-                `).join("") || `<div style="font-size:0.84rem; color:var(--muted);">ابدأ رسالة مباشرة حول الإعلان.</div>`}
+            ${activePanel === "chat" ? `
+              <div class="interaction-panel">
+                <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">محادثة مباشرة حول الإعلان:</strong>
+                <div class="chat-box">
+                  ${messages.length
+                    ? messages.map(m => `
+                        <div class="chat-msg ${m.sender === "المعلن" ? "seller" : ""}">
+                          <b>${escapeAttr(m.sender)}:</b> ${escapeAttr(m.text)}
+                        </div>
+                      `).join("")
+                    : `<div style="font-size:0.82rem; color:var(--muted);">ابدأ المحادثة مع المعلن الآن.</div>`
+                  }
+                </div>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <select id="mRole_${p.id}" style="width:auto; margin-bottom:0; padding:8px;">
+                    <option value="زائر">زائر</option>
+                    <option value="المعلن">المعلن</option>
+                  </select>
+                  <input type="text" id="mText_${p.id}" placeholder="اكتب رسالتك..." style="margin-bottom:0;" />
+                  <button type="button" class="btn-success" onclick="sendChatMessage(${p.id})">إرسال</button>
+                </div>
               </div>
-              <div style="display:flex; gap:6px;">
-                <input type="text" id="mText_${p.id}" placeholder="اكتب رسالتك..." style="margin-bottom:0;" />
-                <button type="button" class="btn-success" onclick="sendMessage(${p.id})">إرسال</button>
-              </div>
-            </div>
-          ` : ""}
-        </article>
-      `;
-    }).join("");
+            ` : ""}
+          </article>
+        `;
+      }).join("");
+    }
+
+    window.updateFeeBanner();
+    syncFromCloud();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+  } catch (err) {
+    console.error(err);
   }
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  }
-
-  loadLocalData();
-  applySettingsToUI();
-  syncFromCloud();
 </script>
 </body>
 </html>

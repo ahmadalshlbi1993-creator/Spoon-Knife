@@ -4,115 +4,259 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f766e" />
-  <meta name="description" content="منصة الصفقة السورية للإعلانات والعقارات والسيارات والخدمات في المحافظات السورية" />
-  <title>الصفقة السورية</title>
+  <title>الصفقة السورية - سوق العقارات والسيارات والإعلانات</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./styles.css" />
   <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5e58;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #1c1e21;
+      --muted: #65676b;
+      --border: #dddfe2;
+      --whatsapp: #25D366;
+    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
-      background: #f4f6f8;
-      color: #111827;
-      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 40px;
     }
     header {
-      background: #0f766e;
-      color: #ffffff;
-      padding: 16px 20px;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 16px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
-    header h1 {
-      margin: 0;
-      font-size: 1.35rem;
-    }
-    header p {
-      margin: 4px 0 0;
-      font-size: 0.9rem;
-      opacity: 0.92;
+    header h1 { margin: 0; font-size: 1.25rem; }
+    .admin-btn {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
     }
     .container {
-      max-width: 780px;
-      margin: 18px auto;
-      padding: 0 14px 36px;
+      max-width: 680px;
+      margin: 14px auto;
+      padding: 0 12px;
     }
-    .filters {
+    .box {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .box h2 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      background: #ffffff;
-      padding: 14px;
-      border-radius: 12px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-      margin-bottom: 16px;
-    }
-    select, button {
-      font-family: inherit;
-      font-size: 0.95rem;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-    }
-    .card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    }
-    .badge {
-      display: inline-block;
-      background: #e6f4f1;
-      color: #0f766e;
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 999px;
+      gap: 8px;
       margin-bottom: 8px;
     }
-    .card h2 {
-      margin: 0 0 6px;
-      font-size: 1.1rem;
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      background: #fff;
     }
-    .meta {
-      color: #4b5563;
-      font-size: 0.88rem;
+    textarea { resize: vertical; min-height: 75px; }
+    .btn {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; padding: 6px 10px; font-size: 0.8rem; width: auto; }
+    .btn-success { background: #16a34a; color: #fff; padding: 6px 10px; font-size: 0.8rem; width: auto; }
+    .fee-notice {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .post-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .badge {
+      background: #e6f4f1;
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .post-title { margin: 4px 0 6px; font-size: 1.08rem; }
+    .post-desc { font-size: 0.92rem; color: #333; margin-bottom: 10px; white-space: pre-line; }
+    .post-img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: 8px;
       margin-bottom: 10px;
     }
-    .price {
-      font-weight: 700;
-      color: #0f766e;
-      margin-bottom: 12px;
+    .post-price {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
     }
-    .actions {
+    .post-actions {
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
     }
-    .btn-primary {
-      background: #0f766e;
-      color: #ffffff;
+    .btn-wa {
+      flex: 1;
+      background: var(--whatsapp);
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+      padding: 9px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .btn-share {
+      background: #e4e6eb;
+      color: var(--text);
       border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
     }
-    .btn-outline {
-      background: #ffffff;
-      color: #111827;
-      cursor: pointer;
+    .hidden { display: none; }
+    .pending-item {
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #fafafa;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>الصفقة السورية</h1>
-    <p>سوق الإعلانات والعقارات والسيارات والخدمات في المحافظات السورية</p>
-  </header>
 
-  <main class="container">
-    <section class="filters" aria-label="تصفية الإعلانات">
-      <select id="governorateFilter">
+<header>
+  <h1>الصفقة السورية</h1>
+  <button class="admin-btn" onclick="toggleAdmin()">مركز التحكم ⚙️</button>
+</header>
+
+<div class="container">
+
+  <!-- لوحة تحكم الإدارة -->
+  <section id="adminPanel" class="box hidden">
+    <h2>مركز التحكم والإدارة</h2>
+    <div id="adminLoginBox">
+      <input type="password" id="adminPassInput" placeholder="أدخل رمز الإدارة (الافتراضي: 1993)" />
+      <button class="btn btn-primary" onclick="loginAdmin()">دخول الإدارة</button>
+    </div>
+
+    <div id="adminControls" class="hidden">
+      <div style="margin-bottom: 12px;">
+        <label style="font-weight:bold; font-size:0.9rem;">وضع النشر والدفع (شام كاش):</label>
+        <select id="monetizationMode" onchange="saveSettings()">
+          <option value="free">نشر مجاني ترويجي (الكل مجاني)</option>
+          <option value="paid">نشر مدفوع (الدفع عبر شام كاش بالدولار)</option>
+        </select>
+        <input type="text" id="shamCashId" placeholder="رقم حساب شام كاش أو الباركود" onchange="saveSettings()" />
+        <input type="text" id="postFeeAmount" placeholder="قيمة رسم الإعلان بالدولار (مثال: 2 USD)" onchange="saveSettings()" />
+      </div>
+
+      <h3 style="font-size:0.95rem; margin-bottom:8px;">طلبات النشر بانتظار الموافقة (<span id="pendingCount">0</span>)</h3>
+      <div id="pendingList"></div>
+      <button class="btn btn-share" style="width:100%; margin-top:8px;" onclick="toggleAdmin()">إغلاق مركز التحكم</button>
+    </div>
+  </section>
+
+  <!-- صندوق إضافة إعلان جديد -->
+  <section class="box">
+    <h2>أضف إعلانك الآن (مباشر بدون تسجيل)</h2>
+    <div id="feeBanner" class="fee-notice hidden"></div>
+    <div class="grid-2">
+      <select id="newGov">
+        <option value="دمشق">دمشق</option>
+        <option value="ريف دمشق">ريف دمشق</option>
+        <option value="حلب">حلب</option>
+        <option value="حمص">حمص</option>
+        <option value="حماة">حماة</option>
+        <option value="اللاذقية">اللاذقية</option>
+        <option value="طرطوس">طرطوس</option>
+        <option value="إدلب">إدلب</option>
+        <option value="درعا">درعا</option>
+        <option value="السويداء">السويداء</option>
+        <option value="دير الزور">دير الزور</option>
+        <option value="الحسكة">الحسكة</option>
+        <option value="الرقة">الرقة</option>
+        <option value="القنيطرة">القنيطرة</option>
+      </select>
+      <select id="newCat">
+        <option value="عقارات">عقارات</option>
+        <option value="سيارات">سيارات</option>
+        <option value="معارض وتجارة">معارض وتجارة</option>
+        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
+        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
+      </select>
+    </div>
+    <input type="text" id="newTitle" placeholder="عنوان الإعلان (مثال: شقة للبيع في المزة / سيارة كيا ريو)" />
+    <textarea id="newDesc" placeholder="تفاصيل الإعلان والمواصفات كاملة..."></textarea>
+    <div class="grid-2">
+      <input type="text" id="newPrice" placeholder="السعر (مثال: 15,000 USD أو ل.س)" />
+      <input type="tel" id="newWhatsapp" placeholder="رقم الواتساب (مثال: 9639xxxxxxxx)" />
+    </div>
+    <label style="font-size:0.85rem; color:var(--muted); display:block; margin-bottom:4px;">إرفاق صورة من الجهاز:</label>
+    <input type="file" id="newImage" accept="image/*" />
+    <button class="btn btn-primary" onclick="submitPost()">نشر الإعلان</button>
+  </section>
+
+  <!-- البحث والتصفية -->
+  <section class="box">
+    <h2>تصفح الإعلانات</h2>
+    <div class="grid-2" style="margin-bottom:0;">
+      <select id="filterGov" onchange="renderFeed()">
         <option value="all">كل المحافظات</option>
         <option value="دمشق">دمشق</option>
         <option value="ريف دمشق">ريف دمشق</option>
@@ -121,92 +265,236 @@
         <option value="حماة">حماة</option>
         <option value="اللاذقية">اللاذقية</option>
         <option value="طرطوس">طرطوس</option>
+        <option value="إدلب">إدلب</option>
+        <option value="درعا">درعا</option>
+        <option value="السويداء">السويداء</option>
+        <option value="دير الزور">دير الزور</option>
+        <option value="الحسكة">الحسكة</option>
+        <option value="الرقة">الرقة</option>
+        <option value="القنيطرة">القنيطرة</option>
       </select>
-
-      <select id="categoryFilter">
+      <select id="filterCat" onchange="renderFeed()">
         <option value="all">كل الأقسام</option>
         <option value="عقارات">عقارات</option>
         <option value="سيارات">سيارات</option>
         <option value="معارض وتجارة">معارض وتجارة</option>
+        <option value="موبايلات وإلكترونيات">موبايلات وإلكترونيات</option>
+        <option value="خدمات وفرص عمل">خدمات وفرص عمل</option>
       </select>
-    </section>
+    </div>
+  </section>
 
-    <section id="listingsFeed"></section>
-  </main>
+  <!-- ساحة الإعلانات (Feed) -->
+  <div id="feedContainer"></div>
 
-  <script>
-    const listings = [
-      {
-        id: 1,
-        title: "شقة سكنية مفروشة إطلالة مميزة",
-        category: "عقارات",
-        governorate: "دمشق",
-        price: "45,000 USD",
-        details: "مساحة 120 م²، طابق ثالث مع مصعد، جاهزة للسكن الفوري."
-      },
-      {
-        id: 2,
-        title: "سيارة عائلية بحالة ممتازة",
-        category: "سيارات",
-        governorate: "حلب",
-        price: "8,200 USD",
-        details: "محرك نظيف ومكيف شغال، صيانة دورية كاملة."
-      },
-      {
-        id: 3,
-        title: "محل تجاري على شارع رئيسي",
-        category: "معارض وتجارة",
-        governorate: "حمص",
-        price: "19,500 USD",
-        details: "واجهة واسعة مناسبة لمعرض أو مكتب تجاري."
-      }
-    ];
+</div>
 
-    const feedEl = document.getElementById("listingsFeed");
-    const govEl = document.getElementById("governorateFilter");
-    const catEl = document.getElementById("categoryFilter");
+<script>
+  // البيانات الافتراضية والمخزنة محلياً
+  let settings = JSON.parse(localStorage.getItem("sydeal_settings")) || {
+    mode: "free",
+    shamCash: "0000-0000-0000",
+    fee: "2 USD"
+  };
 
-    function renderListings() {
-      const gov = govEl.value;
-      const cat = catEl.value;
-      const filtered = listings.filter(
-        (item) =>
-          (gov === "all" || item.governorate === gov) &&
-          (cat === "all" || item.category === cat)
-      );
+  let posts = JSON.parse(localStorage.getItem("sydeal_posts")) || [
+    {
+      id: 101,
+      gov: "دمشق",
+      cat: "عقارات",
+      title: "شقة سكنية طابو أخضر 130 متر",
+      desc: "كسوة ممتازة، طابق ثاني، اتجاه قبلي شرقي، جاهزة للتسليم الفوري.",
+      price: "55,000 USD",
+      whatsapp: "963900000000",
+      image: "",
+      approved: true
+    },
+    {
+      id: 102,
+      gov: "حلب",
+      cat: "سيارات",
+      title: "سيارة هيونداي أفانتي بحالة الوكالة",
+      desc: "أوتوماتيك، مكيف ديجيتال، خالية العلام من الداخل تماماً.",
+      price: "9,500 USD",
+      whatsapp: "963900000000",
+      image: "",
+      approved: true
+    }
+  ];
 
-      if (!filtered.length) {
-        feedEl.innerHTML = '<div class="card"><p>لا توجد إعلانات مطابقة للخيارات المحددة حالياً.</p></div>';
-        return;
-      }
+  let isAdminLoggedIn = false;
 
-      feedEl.innerHTML = filtered
-        .map(
-          (item) => `
-          <article class="card">
-            <span class="badge">${item.category} • ${item.governorate}</span>
-            <h2>${item.title}</h2>
-            <div class="meta">${item.details}</div>
-            <div class="price">${item.price}</div>
-            <div class="actions">
-              <button class="btn-primary" onclick="alert('تم فتح تفاصيل الإعلان: ${item.title}')">عرض التفاصيل</button>
-              <button class="btn-outline" onclick="alert('مشاركة إعلان: ${item.title}')">مشاركة</button>
-            </div>
-          </article>
-        `
-        )
-        .join("");
+  function updateFeeBanner() {
+    const banner = document.getElementById("feeBanner");
+    if (settings.mode === "paid") {
+      banner.classList.remove("hidden");
+      banner.innerHTML = `النشر المدفوع مفعل: رسم الإعلان <b>${settings.fee}</b> عبر <b>شام كاش</b> (${settings.shamCash})، وسيتم تفعيل إعلانك فور التحقق.`;
+    } else {
+      banner.classList.add("hidden");
+    }
+  }
+
+  function toggleAdmin() {
+    document.getElementById("adminPanel").classList.toggle("hidden");
+  }
+
+  function loginAdmin() {
+    const pass = document.getElementById("adminPassInput").value;
+    if (pass === "1993") {
+      isAdminLoggedIn = true;
+      document.getElementById("adminLoginBox").classList.add("hidden");
+      document.getElementById("adminControls").classList.remove("hidden");
+      document.getElementById("monetizationMode").value = settings.mode;
+      document.getElementById("shamCashId").value = settings.shamCash;
+      document.getElementById("postFeeAmount").value = settings.fee;
+      renderPending();
+    } else {
+      alert("رمز الإدارة غير صحيح");
+    }
+  }
+
+  function saveSettings() {
+    settings.mode = document.getElementById("monetizationMode").value;
+    settings.shamCash = document.getElementById("shamCashId").value;
+    settings.fee = document.getElementById("postFeeAmount").value;
+    localStorage.setItem("sydeal_settings", JSON.stringify(settings));
+    updateFeeBanner();
+  }
+
+  function submitPost() {
+    const gov = document.getElementById("newGov").value;
+    const cat = document.getElementById("newCat").value;
+    const title = document.getElementById("newTitle").value.trim();
+    const desc = document.getElementById("newDesc").value.trim();
+    const price = document.getElementById("newPrice").value.trim();
+    const whatsapp = document.getElementById("newWhatsapp").value.trim().replace(/[^0-9]/g, "");
+    const fileInput = document.getElementById("newImage");
+
+    if (!title || !desc) {
+      alert("يرجى كتابة عنوان الإعلان وتفاصيله");
+      return;
     }
 
-    govEl.addEventListener("change", renderListings);
-    catEl.addEventListener("change", renderListings);
-    renderListings();
+    const finalizeSave = (imgData) => {
+      const newPost = {
+        id: Date.now(),
+        gov,
+        cat,
+        title,
+        desc,
+        price: price || "السعر عند التواصل",
+        whatsapp: whatsapp || "963900000000",
+        image: imgData || "",
+        approved: false // يذهب للمراجعة في مركز التحكم أولاً
+      };
+      posts.unshift(newPost);
+      localStorage.setItem("sydeal_posts", JSON.stringify(posts));
 
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {});
-      });
+      document.getElementById("newTitle").value = "";
+      document.getElementById("newDesc").value = "";
+      document.getElementById("newPrice").value = "";
+      document.getElementById("newWhatsapp").value = "";
+      document.getElementById("newImage").value = "";
+
+      alert("تم إرسال إعلانك بنجاح! سيظهر في المنصة فور موافقة الإدارة من مركز التحكم.");
+      if (isAdminLoggedIn) renderPending();
+    };
+
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => finalizeSave(e.target.result);
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      finalizeSave("");
     }
-  </script>
+  }
+
+  function approvePost(id) {
+    const post = posts.find(p => p.id === id);
+    if (post) post.approved = true;
+    localStorage.setItem("sydeal_posts", JSON.stringify(posts));
+    renderPending();
+    renderFeed();
+  }
+
+  function deletePost(id) {
+    posts = posts.filter(p => p.id !== id);
+    localStorage.setItem("sydeal_posts", JSON.stringify(posts));
+    renderPending();
+    renderFeed();
+  }
+
+  function renderPending() {
+    const pending = posts.filter(p => !p.approved);
+    document.getElementById("pendingCount").textContent = pending.length;
+    const container = document.getElementById("pendingList");
+    if (!pending.length) {
+      container.innerHTML = "<p style='font-size:0.85rem; color:var(--muted);'>لا توجد طلبات معلقة حالياً.</p>";
+      return;
+    }
+    container.innerHTML = pending.map(p => `
+      <div class="pending-item">
+        <strong>${p.title}</strong> (${p.gov} - ${p.cat})<br/>
+        <small>${p.desc}</small><br/>
+        <div style="margin-top:6px; display:flex; gap:6px;">
+          <button class="btn btn-success" onclick="approvePost(${p.id})">موافقة ونشر</button>
+          <button class="btn btn-danger" onclick="deletePost(${p.id})">حذف</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function sharePost(title, price) {
+    const text = `${title} - السعر: ${price}\nعبر منصة الصفقة السورية:\n${window.location.href}`;
+    if (navigator.share) {
+      navigator.share({ title, text }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text);
+      alert("تم نسخ رابط وتفاصيل الإعلان للمشاركة!");
+    }
+  }
+
+  function renderFeed() {
+    const gov = document.getElementById("filterGov").value;
+    const cat = document.getElementById("filterCat").value;
+    const approvedPosts = posts.filter(p =>
+      p.approved &&
+      (gov === "all" || p.gov === gov) &&
+      (cat === "all" || p.cat === cat)
+    );
+
+    const container = document.getElementById("feedContainer");
+    if (!approvedPosts.length) {
+      container.innerHTML = `<div class="box"><p style="text-align:center; color:var(--muted);">لا توجد إعلانات في هذا القسم حالياً.</p></div>`;
+      return;
+    }
+
+    container.innerHTML = approvedPosts.map(p => `
+      <article class="post-card">
+        <div class="post-header">
+          <span class="badge">${p.gov} • ${p.cat}</span>
+          ${isAdminLoggedIn ? `<button class="btn btn-danger" onclick="deletePost(${p.id})">حذف</button>` : ""}
+        </div>
+        <h3 class="post-title">${p.title}</h3>
+        <div class="post-desc">${p.desc}</div>
+        ${p.image ? `<img src="${p.image}" class="post-img" alt="${p.title}" />` : ""}
+        <div class="post-price">${p.price}</div>
+        <div class="post-actions">
+          <a class="btn-wa" href="https://wa.me/${p.whatsapp}?text=${encodeURIComponent('مرحباً، بخصوص إعلانك في الصفقة السورية: ' + p.title)}" target="_blank">تواصل واتساب</a>
+          <button class="btn-share" onclick="sharePost('${p.title.replace(/'/g, "")}', '${p.price}')">مشاركة</button>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  updateFeeBanner();
+  renderFeed();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
